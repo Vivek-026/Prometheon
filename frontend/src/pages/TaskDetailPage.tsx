@@ -49,12 +49,12 @@ const ProgressEntryIcon = ({ type }: { type: ProgressEntry['entry_type'] }) => {
 // --- MOCK DATA FALLBACK ---
 const MOCK_TASK_DETAIL: Task = {
   id: '1',
-  name: 'Database Encryption Audit',
-  description: '# SECURE DATABASE SETUP\n\nPerform a deep audit on all production databases to ensure AES-256 compliance.\n\n### Requirements\n- Scan all schemas\n- Verify key rotation\n- Check audit logs',
+  name: 'DATABASE ENCRYPTION AUDIT',
+  description: '# SECURITY PROTOCOL V4.2\n\nPerform a deep audit on all production databases to insure AES-256 compliance.\n\n### Requirements\n- Scan all schemas\n- Verify key rotation\n- Extract audit log signature',
   status: 'in_progress',
   priority: 'urgent',
   tags: ['security', 'infrastructure', 'compliance'],
-  created_by: { id: 'admin1', name: 'Alpha Admin' },
+  created_by: { id: 'admin1', name: 'Commander Alpha' },
   original_deadline: '2026-04-10T18:00:00Z',
   current_deadline: '2026-04-12T18:00:00Z',
   carry_forward_count: 2,
@@ -66,7 +66,7 @@ const MOCK_TASK_DETAIL: Task = {
   ],
   task_brief: {
     id: 'b1',
-    auto_name: 'encryption_guide.pdf',
+    auto_name: 'ENCRYPTION_GUIDE.PDF',
     s3_presigned_url: '#',
     mime_type: 'application/pdf'
   },
@@ -74,7 +74,7 @@ const MOCK_TASK_DETAIL: Task = {
     {
       id: 'e1',
       entry_type: 'text_note',
-      note: 'Initial scan complete. No issues detected.',
+      note: 'Initial scan complete for Sector 7. No unauthorized access nodes detected.',
       uploaded_by: { id: 'me', name: 'Alpha User' },
       created_at: '2026-04-01T10:00:00Z'
     },
@@ -92,8 +92,8 @@ const MOCK_TASK_DETAIL: Task = {
     { id: 'l2', carry_number: 2, from_deadline: '2026-04-11', to_deadline: '2026-04-12', reason: 'Extended sector scan required', created_at: '2026-04-10T09:00:00Z' }
   ],
   linked_documents: [
-    { id: 'd1', auto_name: 'global_policy.md', link_type: 'internal', mime_type: 'text/markdown' },
-    { id: 'd2', auto_name: 'audit_template.xlsx', link_type: 'internal', mime_type: 'application/xlsx' }
+    { id: 'd1', auto_name: 'GLOBAL_ENCRYPTION_POLICY.MD', link_type: 'internal', mime_type: 'text/markdown' },
+    { id: 'd2', auto_name: 'AUDIT_LOG_TEMPLATE.XLSX', link_type: 'internal', mime_type: 'application/xlsx' }
   ]
 };
 
@@ -127,12 +127,12 @@ const TaskDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex bg-[#111111] min-h-screen">
+      <div className="flex bg-[#111111] min-h-screen font-mono">
         <Sidebar />
-        <main className="flex-1 md:ml-64 p-8 flex items-center justify-center">
+        <main className="flex-1 ml-64 p-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#F97316]">Loading Task Details...</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F97316]">Retrieving Node Data...</p>
           </div>
         </main>
       </div>
@@ -141,15 +141,15 @@ const TaskDetailPage: React.FC = () => {
 
   if (error || !task) {
     return (
-      <div className="flex bg-[#111111] min-h-screen">
+      <div className="flex bg-[#111111] min-h-screen font-mono">
         <Sidebar />
-        <main className="flex-1 md:ml-64 p-8 flex flex-col items-center justify-center">
+        <main className="flex-1 ml-64 p-8 flex flex-col items-center justify-center">
           <AlertCircle size={48} className="text-red-500 mb-4" />
-          <h2 className="text-xl font-bold uppercase mb-2">Not Found</h2>
-          <p className="text-[10px] text-muted-foreground uppercase mb-6 tracking-widest">Failed to load task</p>
+          <h2 className="text-xl font-black uppercase italic mb-2">Access Denied / Not Found</h2>
+          <p className="text-[10px] text-muted-foreground uppercase mb-6 tracking-widest">Failed to initialize data stream</p>
           <Link to="/tasks">
-            <Button variant="outline" className="rounded-sm border-zinc-800 uppercase font-black text-xs tracking-widest">
-              Back to Tasks
+            <Button className="bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-none font-black px-8">
+              RETURN TO REGISTRY
             </Button>
           </Link>
         </main>
@@ -157,289 +157,558 @@ const TaskDetailPage: React.FC = () => {
     );
   }
 
-  const isCompleted = task.status === 'completed';
-  const isFlagged = task.flag_count > 0 || task.status === 'flagged';
+  const isManager = user?.role === 'admin' || user?.role === 'task_manager';
+  const isAssignee = task.assignees?.some(a => a.id === user?.id) || false;
+
+  const getDeadlineColor = (dateStr: string | undefined) => {
+    if (!dateStr) return 'text-muted-foreground';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'text-muted-foreground';
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (date < today) return 'text-red-500';
+      if (date.getTime() === today.getTime()) return 'text-orange-500';
+      return 'text-muted-foreground';
+    } catch (e) {
+      return 'text-muted-foreground';
+    }
+  };
+
+  const safeFormatDate = (dateStr: string | undefined, formatStr: string) => {
+    if (!dateStr) return 'UNSET';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'INVALID DATA';
+      return format(date, formatStr);
+    } catch (e) {
+      return 'INVALID DATA';
+    }
+  };
+
+  const safeFormatDistance = (dateStr: string | undefined) => {
+    if (!dateStr) return 'STABLE';
+    try {
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'UNKNOWN';
+      return formatDistanceToNow(date);
+    } catch (e) {
+      return 'UNKNOWN';
+    }
+  };
 
   return (
-    <div className="flex bg-[#111111] min-h-screen overflow-x-hidden">
+    <div className="flex bg-[#111111] min-h-screen font-mono selection:bg-[#F97316] selection:text-black">
       <Sidebar />
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8 w-full max-w-[100vw] overflow-x-hidden">
+      <main className="flex-1 ml-64 p-8 pb-32">
         {/* Navigation Breadcrumb */}
-        <div className="mb-6 flex items-center gap-2">
-            <Link to="/tasks" className="flex items-center gap-1.5 text-zinc-500 hover:text-white transition-colors text-[10px] uppercase font-black tracking-widest group">
-                <ChevronLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                Back to Tasks
-            </Link>
+        <div className="mb-10">
+          <Link to="/tasks" className="inline-flex items-center gap-2 group">
+            <div className="p-1 bg-[#1a1a1a] border border-[#2e2e2e] group-hover:bg-[#F97316] group-hover:text-black transition-colors">
+              <ChevronLeft size={16} strokeWidth={3} />
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-hover:text-white transition-colors">
+              Node Database / Registry Index
+            </span>
+          </Link>
         </div>
 
-        {/* Task Header Area */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-10">
-            <div className="space-y-4">
-                <div className="flex flex-wrap items-center gap-3">
-                   <Badge variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-500 rounded-sm italic uppercase text-[9px]">ID: {task.id}</Badge>
-                   <Badge className={cn(
-                     "rounded-sm uppercase text-[9px] tracking-widest",
-                     task.priority === 'urgent' ? "bg-red-500/20 text-red-500 border border-red-500/30" : "bg-[#F97316]/20 text-[#F97316] border border-[#F97316]/30"
-                   )}>
-                     {task.priority} Priority
-                   </Badge>
-                   {task.is_frozen && <Badge className="bg-blue-900/20 text-blue-400 border border-blue-800/50 rounded-sm uppercase text-[9px] tracking-widest italic animate-pulse">Frozen</Badge>}
-                </div>
-                <h1 className="text-2xl md:text-4xl font-black uppercase tracking-tighter text-white">{task.name}</h1>
-                <div className="flex flex-wrap items-center gap-4 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
-                   <div className="flex items-center gap-2">
-                      <User size={14} className="text-[#F97316]" />
-                      Created By: <span className="text-zinc-300">{typeof task.created_by === 'string' ? task.created_by : task.created_by.name}</span>
-                   </div>
-                   <Separator orientation="vertical" className="h-3 bg-zinc-800 hidden sm:block" />
-                   <div className="flex items-center gap-2">
-                      <Clock size={14} className="text-zinc-500" />
-                      Created {format(new Date(task.created_at), 'MMM dd, yyyy')}
-                   </div>
-                </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-                {!isCompleted && (
-                    <Button 
-                      onClick={() => setIsFlagModalOpen(true)}
-                      variant="outline" 
-                      className="border-red-900/50 text-red-500 hover:bg-red-900/10 font-black uppercase text-[10px] tracking-widest rounded-sm h-11"
-                    >
-                        <Flag size={14} className="mr-2" /> Report Issue
-                    </Button>
-                )}
+        <div className="flex gap-10">
+          {/* LEFT COLUMN: PRIMARY WORKSPACE */}
+          <div className="flex-1 max-w-4xl space-y-12">
+            
+            {/* 1. Header & ID Card */}
+            <section className="space-y-6">
+              <div className="relative">
+                <div className="absolute -left-6 top-0 bottom-0 w-1 bg-[#F97316]" />
+                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic leading-none mb-4">
+                  {task.name}
+                </h1>
                 
-                {task.status !== 'completed' && (
-                  <Button 
-                    onClick={() => statusMutation.mutate('completed')}
-                    disabled={statusMutation.isPending}
-                    className="bg-green-600 hover:bg-green-700 text-black font-black uppercase text-[10px] tracking-widest rounded-sm h-11 px-6"
-                  >
-                      Complete Task
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge variant={task.status as any}>{task.status?.replace('_', ' ')}</Badge>
+                  <Badge variant={task.priority as any}>{task.priority}</Badge>
+                  <Separator orientation="vertical" className="h-4 bg-[#2e2e2e]" />
+                  {task.tags?.map(tag => (
+                    <span 
+                      key={tag} 
+                      className="text-[10px] font-bold text-[#F97316]/60 bg-[#F97316]/5 border border-[#F97316]/10 px-2 py-0.5 uppercase tracking-widest"
+                    >
+                      # {tag}
+                    </span>
+                  ))}
+                  {task.flag_count > 0 && (
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-red-900/20 text-red-500 border border-red-500/30 text-[10px] font-black uppercase italic">
+                       <Flag size={12} fill="currentColor" /> {task.flag_count} FLAGS
+                    </div>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {/* 2. Description (Markdown) */}
+            <section className="bg-[#1a1a1a] border border-[#2e2e2e] p-8 relative overflow-hidden group">
+               {/* Industrial Background pattern */}
+              <div className="absolute top-0 right-0 p-1 opacity-5 select-none pointer-events-none text-[80px] font-black italic">DESC</div>
+              
+              <div className="prose prose-invert prose-orange max-w-none prose-sm font-sans">
+                {task.description ? (
+                  <ReactMarkdown>{task.description}</ReactMarkdown>
+                ) : (
+                  <p className="italic text-muted-foreground font-mono uppercase text-[10px] tracking-widest">No detailed documentation provided for this node.</p>
+                )}
+              </div>
+            </section>
+
+            {/* 3. Task Brief (Pinned at top) */}
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-4 w-1 bg-[#F97316]" />
+                  <h2 className="text-[12px] font-black uppercase tracking-[0.2em] italic">📎 Task Briefing</h2>
+                </div>
+                {isManager && (
+                  <Button variant="outline" className="h-8 px-4 rounded-none border-[#2e2e2e] text-[10px] font-black uppercase tracking-widest hover:bg-[#F97316] hover:text-black hover:border-transparent transition-all">
+                    Update Brief
                   </Button>
                 )}
-            </div>
-        </div>
-
-        {/* Main Sector Grid (Responsive Stacking) */}
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 pb-20 md:pb-0">
-            
-            {/* Left Sector: Details & Briefing */}
-            <div className="xl:col-span-8 space-y-8">
-                
-                {/* Description Card */}
-                <Card className="bg-[#0d0d0d] border border-zinc-900 rounded-none shadow-2xl overflow-hidden min-h-[300px]">
-                   <CardHeader className="p-6 border-b border-zinc-900 flex flex-row items-center justify-between">
-                      <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-[#F97316]">Task Brief</CardTitle>
-                      <div className="flex gap-2">
-                         {task.tags.map(tag => (
-                            <span key={tag} className="text-[8px] font-black uppercase text-zinc-700 bg-zinc-900 px-2 py-0.5 border border-zinc-800 italic">#{tag}</span>
-                         ))}
-                      </div>
-                   </CardHeader>
-                   <CardContent className="p-8 prose prose-invert prose-zinc max-w-none prose-headings:uppercase prose-headings:tracking-tighter prose-p:text-sm prose-p:leading-relaxed prose-p:text-zinc-400">
-                      {task.description ? (
-                        <ReactMarkdown>{task.description}</ReactMarkdown>
-                      ) : (
-                        <p className="opacity-20 italic font-black uppercase text-center py-20">No description provided.</p>
-                      )}
-                   </CardContent>
-                </Card>
-
-                {/* Progress Stream */}
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3 text-zinc-500">
-                           <History size={14} className="text-[#F97316]" /> Progress & Updates
-                        </h3>
-                        <Button 
-                          onClick={() => setIsAddProgressOpen(true)}
-                          variant="outline" 
-                          className="border-[#2e2e2e] text-[#F97316] font-black uppercase text-[9px] tracking-widest rounded-sm bg-[#1a1a1a] h-8"
-                        >
-                           <Plus size={12} className="mr-2" /> Add Update
-                        </Button>
+              </div>
+              
+              <Card className="bg-gradient-to-br from-[#1a1a1a] to-[#161616] border-[#2e2e2e]">
+                <CardContent className="p-6">
+                  {task.task_brief ? (
+                    <div className="flex items-center justify-between gap-4">
+                       <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-[#111] border border-[#2e2e2e] flex items-center justify-center text-[#F97316]">
+                            {task.task_brief.mime_type.includes('image') ? <ImageIcon size={24} /> : 
+                             task.task_brief.mime_type.includes('pdf') ? <FileText size={24} /> : <Paperclip size={24} />}
+                          </div>
+                          <div>
+                            <p className="text-sm font-black uppercase tracking-tight">{task.task_brief.auto_name}</p>
+                            <p className="text-[10px] text-muted-foreground uppercase font-bold">{task.task_brief.mime_type} • SECTOR CLASSIFIED</p>
+                          </div>
+                       </div>
+                       <Button className="h-9 px-6 bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-none font-black flex gap-2">
+                          <Download size={16} /> DOWNLOAD
+                       </Button>
                     </div>
-
-                    <div className="space-y-4">
-                        {(task.progress_entries || []).map((entry, idx) => (
-                           <Card key={entry.id || idx} className="bg-[#111] border-[#2e2e2e] rounded-none group hover:border-[#F97316]/30 transition-all border-l-2 border-l-[#2e2e2e] hover:border-l-[#F97316]">
-                              <CardContent className="p-5 flex gap-4">
-                                 <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-600 shrink-0 group-hover:text-[#F97316] group-hover:bg-[#F97316]/5 transition-all">
-                                    <ProgressEntryIcon type={entry.entry_type} />
-                                 </div>
-                                 <div className="flex-1 space-y-2">
-                                    <div className="flex items-center justify-between">
-                                       <span className="text-[10px] font-black uppercase text-zinc-400">{entry.uploaded_by.name}</span>
-                                       <span className="text-[9px] text-zinc-600 font-bold italic">{formatDistanceToNow(new Date(entry.created_at))} ago</span>
-                                    </div>
-                                    <p className="text-xs text-zinc-300 leading-relaxed font-medium">
-                                       {entry.entry_type === 'text_note' ? entry.note : `Uploaded a ${entry.entry_type}`}
-                                    </p>
-                                    {entry.entry_type === 'code_snippet' && (
-                                      <pre className="bg-black/40 p-3 text-[10px] font-mono text-blue-400 border border-blue-900/20 mt-2 overflow-x-auto rounded-sm">
-                                         <code>{entry.content}</code>
-                                      </pre>
-                                    )}
-                                    {(entry.entry_type === 'screenshot' || entry.s3_presigned_url) && (
-                                       <a 
-                                         href={entry.s3_presigned_url} 
-                                         target="_blank" 
-                                         rel="noopener noreferrer" 
-                                         className="inline-flex items-center gap-2 mt-2 px-3 py-1 bg-zinc-900 border border-zinc-800 text-[9px] font-black uppercase text-[#F97316] hover:bg-[#F97316] hover:text-black transition-all rounded-sm"
-                                       >
-                                          <ExternalLink size={10} /> View Attachment
-                                       </a>
-                                    )}
-                                 </div>
-                              </CardContent>
-                           </Card>
-                        ))}
-                        {(!task.progress_entries || task.progress_entries.length === 0) && (
-                           <div className="p-12 text-center border-2 border-dashed border-zinc-900 opacity-20 italic font-black uppercase text-xs">Waiting for updates...</div>
-                        )}
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-6 text-muted-foreground opacity-40">
+                       <ShieldQuestion size={32} className="mb-2" />
+                       <p className="text-[10px] uppercase font-bold tracking-widest">No brief uploaded for this terminal</p>
                     </div>
+                  )}
+                </CardContent>
+              </Card>
+            </section>
+
+            {/* 4. Progress Entries (Progress Files) */}
+            <section className="space-y-6">
+               <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-4 w-1 bg-blue-500" />
+                  <h2 className="text-[12px] font-black uppercase tracking-[0.2em] italic">📁 Progress Stream</h2>
                 </div>
-            </div>
+                {(isAssignee || isManager) && (
+                  <Button 
+                    onClick={() => setIsAddProgressOpen(true)}
+                    className="h-9 px-6 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-none font-black flex gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all transform hover:-translate-y-0.5"
+                  >
+                    <Plus size={16} strokeWidth={3} /> ADD PROGRESS
+                  </Button>
+                )}
+              </div>
 
-            {/* Right Sector: Constraints & Operatives */}
-            <div className="xl:col-span-4 space-y-8">
-                
-                {/* Protocol Constraints */}
-                <Card className="bg-[#1a1a1a] border border-zinc-900 rounded-none shadow-2xl relative overflow-hidden group">
-                   <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#F97316]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                   <CardHeader className="p-6 border-b border-zinc-900">
-                      <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-[#F97316]">Deadlines</CardTitle>
-                   </CardHeader>
-                   <CardContent className="p-6 space-y-6">
-                      <div className="flex items-center justify-between">
-                         <div className="flex flex-col">
-                            <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">Original Deadline</span>
-                            <span className="text-xs font-black text-white italic">{format(new Date(task.original_deadline), 'MMM dd | HH:mm')}</span>
-                         </div>
-                         <div className="flex flex-col items-end">
-                            <span className="text-[9px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1">Current Deadline</span>
-                            <span className="text-xs font-black text-[#F97316] italic">{format(new Date(task.current_deadline), 'MMM dd | HH:mm')}</span>
-                         </div>
-                      </div>
-
-                      {task.carry_forward_count > 0 && (
-                        <div className="p-4 bg-orange-950/20 border border-orange-900/30 rounded-none">
-                           <div className="flex items-center justify-between mb-3">
-                              <span className="text-[9px] font-black text-orange-500 uppercase italic">Pushed {task.carry_forward_count} Times</span>
-                              <AlertCircle size={14} className="text-orange-500" />
-                           </div>
-                           <div className="space-y-2">
-                              {task.carry_forward_logs?.slice(-2).map((log, i) => (
-                                 <div key={i} className="flex flex-col border-l border-orange-900/50 pl-3">
-                                    <span className="text-[8px] text-zinc-500 uppercase font-black">Reason: {log.reason}</span>
-                                    <span className="text-[8px] text-orange-500/70 font-bold italic">{log.from_deadline} → {log.to_deadline}</span>
-                                 </div>
-                              ))}
-                           </div>
+              <div className="space-y-4">
+                {task.progress_entries && task.progress_entries?.length > 0 ? (
+                  task.progress_entries.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((entry) => (
+                    <div key={entry.id} className="group flex gap-4 transition-all hover:translate-x-1">
+                      {/* Timeline Decoration */}
+                      <div className="flex flex-col items-center py-2">
+                        <div className="w-8 h-8 rounded-full bg-[#1a1a1a] border border-[#2e2e2e] flex items-center justify-center text-zinc-500 overflow-hidden ring-2 ring-[#111]">
+                          {entry.uploaded_by.avatar_url ? (
+                            <img src={entry.uploaded_by.avatar_url} alt={entry.uploaded_by.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-[10px] font-black">{entry.uploaded_by.name.charAt(0)}</span>
+                          )}
                         </div>
-                      )}
-                   </CardContent>
-                </Card>
-
-                {/* Assigned Personnel */}
-                <Card className="bg-[#1a1a1a] border border-zinc-900 rounded-none">
-                   <CardHeader className="p-6 border-b border-zinc-900 flex flex-row items-center justify-between">
-                      <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-white">Assigned To</CardTitle>
-                      <User size={14} className="text-zinc-600" />
-                   </CardHeader>
-                   <CardContent className="p-6 space-y-4">
-                      {task.assignees.map((assignee) => (
-                         <div key={assignee.id} className="flex items-center justify-between group">
-                            <div className="flex items-center gap-3">
-                               <div className="w-10 h-10 rounded-full border-2 border-zinc-800 p-0.5 group-hover:border-[#F97316] transition-all">
-                                  <img src={assignee.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${assignee.name}`} alt={assignee.name} className="w-full h-full rounded-full object-cover" />
-                               </div>
-                               <div className="flex flex-col">
-                                  <span className="text-[11px] font-black uppercase text-white tracking-widest">{assignee.name}</span>
-                                  <span className="text-[8px] text-zinc-600 font-bold italic uppercase">{assignee.role || 'Operative'}</span>
-                               </div>
-                            </div>
-                            {assignee.contribution_pct && (
-                              <div className="text-right">
-                                 <div className="text-[10px] font-black text-[#F97316] italic">{assignee.contribution_pct}%</div>
-                                 <div className="text-[7px] text-zinc-700 font-bold uppercase">Impact</div>
-                              </div>
-                            )}
-                         </div>
-                      ))}
-                   </CardContent>
-                </Card>
-
-                {/* Linked Documents Hub */}
-                <Card className="bg-[#1a1a1a] border border-zinc-900 rounded-none shadow-2xl">
-                   <CardHeader className="p-6 border-b border-zinc-900 flex flex-row items-center justify-between">
-                      <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-white">Linked Documents</CardTitle>
-                      <Paperclip size={14} className="text-zinc-600" />
-                   </CardHeader>
-                   <CardContent className="p-6 space-y-3">
-                      {(task.linked_documents || []).map((doc) => (
-                         <Link 
-                           key={doc.id} 
-                           to={`/documents/${doc.id}`}
-                           className="flex items-center justify-between p-3 bg-zinc-900/50 border border-zinc-800 hover:border-[#F97316]/50 transition-all group"
-                         >
-                            <div className="flex items-center gap-3">
-                               <div className="text-zinc-700 group-hover:text-[#F97316] transition-colors">
-                                  <FileText size={16} />
-                               </div>
-                               <span className="text-[10px] font-bold text-zinc-300 uppercase truncate max-w-[120px]">{doc.auto_name}</span>
-                            </div>
-                            <ExternalLink size={12} className="text-zinc-800 group-hover:text-zinc-500" />
-                         </Link>
-                      ))}
-                      {(!task.linked_documents || task.linked_documents.length === 0) && (
-                         <p className="text-[10px] text-zinc-700 uppercase font-bold text-center py-4">No documents linked</p>
-                      )}
-                   </CardContent>
-                </Card>
-
-                {/* Incident/Flag Registry */}
-                <Card className={cn(
-                  "bg-[#1a1a1a] rounded-none border transition-all",
-                  isFlagged ? "border-red-900/50 bg-red-950/5" : "border-zinc-900"
-                )}>
-                   <CardHeader className="p-6 border-b border-zinc-900 flex flex-row items-center justify-between">
-                      <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-white">Flag Status</CardTitle>
-                      <ShieldQuestion size={14} className={isFlagged ? "text-red-500" : "text-zinc-600"} />
-                   </CardHeader>
-                   <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                         <div className="flex flex-col gap-1">
-                            <span className={cn(
-                              "text-sm font-black uppercase tracking-tight italic",
-                              isFlagged ? "text-red-500" : "text-green-500"
-                            )}>
-                               {isFlagged ? "Has active flag" : "All Clear"}
-                            </span>
-                            <span className="text-[8px] text-zinc-600 font-bold uppercase tracking-widest">
-                               {isFlagged ? `${task.flag_count} Reported Issue(s)` : "No anomalies reported"}
-                            </span>
-                         </div>
-                         {isFlagged && <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 animate-pulse"><Flag size={18} /></div>}
+                        <div className="flex-1 w-[1px] bg-[#2e2e2e] my-1" />
                       </div>
-                   </CardContent>
-                </Card>
+
+                      {/* Content Card */}
+                      <div className="flex-1 bg-[#1a1a1a] border border-[#2e2e2e] transition-colors group-hover:border-[#F97316]/30 overflow-hidden">
+                        <div className="px-4 py-2 bg-[#111]/50 border-b border-[#2e2e2e] flex items-center justify-between">
+                           <div className="flex items-center gap-3">
+                             <span className="text-[#F97316]"><ProgressEntryIcon type={entry.entry_type} /></span>
+                             <span className="text-[10px] font-black uppercase tracking-widest">{entry.entry_type.replace('_', ' ')}</span>
+                           </div>
+                           <span className="text-[9px] text-muted-foreground font-bold uppercase">
+                             {safeFormatDistance(entry.created_at)} ago
+                           </span>
+                        </div>
+                        
+                        <div className="p-4 space-y-3">
+                          {entry.note && <p className="text-xs text-zinc-300 leading-relaxed font-sans">{entry.note}</p>}
+                          
+                          {/* Rendering based on type */}
+                          {entry.entry_type === 'screenshot' && entry.document?.s3_presigned_url && (
+                             <div className="mt-4 border border-[#2e2e2e] overflow-hidden bg-[#111] p-1">
+                               <img src={entry.document.s3_presigned_url} alt="Screenshot" className="w-full h-auto max-h-[400px] object-contain" />
+                             </div>
+                          )}
+
+                          {entry.entry_type === 'code_snippet' && entry.content && (
+                            <pre className="mt-4 p-4 bg-black border border-[#2e2e2e] overflow-x-auto text-[11px] text-green-500/80 font-mono scrollbar-thin scrollbar-thumb-zinc-800">
+                              <code>{entry.content}</code>
+                            </pre>
+                          )}
+
+                          {(entry.entry_type === 'link' || entry.entry_type === 'doc_hub_link') && entry.content && (
+                            <a 
+                              href={entry.content} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="mt-2 flex items-center gap-3 p-3 bg-[#111] border border-[#2e2e2e] hover:border-[#F97316] transition-colors text-xs text-[#F97316] font-bold"
+                            >
+                              <ExternalLink size={14} /> 
+                              <span className="truncate">{entry.content}</span>
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-[#2e2e2e] rounded-sm opacity-30">
+                    <History size={32} className="mb-2" />
+                    <p className="text-[10px] uppercase font-black tracking-widest">Timeline Empty / Waiting for Uplink</p>
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+
+          {/* RIGHT SIDEBAR: SPECS & CONTROL */}
+          <aside className="w-80 space-y-6">
+            <div className="sticky top-8 space-y-6">
+              
+              {/* Mark as Completed - Admin/Manager only when in_review */}
+              {isManager && task.status === 'in_review' && (
+                <Button 
+                  onClick={() => statusMutation.mutate('completed')}
+                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-none border-none font-black italic shadow-[0_0_20px_rgba(22,163,74,0.3)] animate-pulse"
+                >
+                  <CheckCircle2 className="mr-2" size={18} /> MARK AS COMPLETED
+                </Button>
+              )}
+
+              {/* Status Transitions for Assignees */}
+              {isAssignee && (
+                <div className="space-y-3">
+                   {task.status === 'pending' && (
+                     <Button 
+                       onClick={() => statusMutation.mutate('in_progress')}
+                       className="w-full h-12 bg-[#F97316] hover:bg-[#F97316]/90 text-black rounded-none border-none font-black italic shadow-[0_0_20px_rgba(249,115,22,0.3)]"
+                     >
+                        INITIALIZE TASK / START
+                     </Button>
+                   )}
+                   {task.status === 'in_progress' && (
+                     <Button 
+                       onClick={() => {
+                         if (!task.progress_entries || task.progress_entries.length === 0) {
+                           alert('Upload at least one progress file before submitting for review');
+                           return;
+                         }
+                         statusMutation.mutate('in_review');
+                       }}
+                       className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-none border-none font-black italic"
+                     >
+                        SUBMIT FOR REVIEW
+                     </Button>
+                   )}
+                </div>
+              )}
+
+              {/* Deadline & Chrono */}
+              <Card>
+                <CardHeader className="pb-3 px-4 pt-4 border-b border-[#2e2e2e]">
+                  <CardTitle className="text-[11px] text-zinc-500">TEMPORAL CONSTRAINTS</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                  <div className="space-y-1">
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">ORIGINAL QUOTA</p>
+                    <p className="text-xs font-bold text-zinc-400">{safeFormatDate(task.original_deadline, 'PPpp')}</p>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">CURRENT TERMINAL</p>
+                    <p className={cn("text-sm font-black italic", getDeadlineColor(task.current_deadline))}>
+                      {safeFormatDate(task.current_deadline, 'PPpp')}
+                    </p>
+                    {task.current_deadline !== task.original_deadline && (
+                      <div className="inline-block mt-1 px-1.5 py-0.5 bg-orange-500/10 text-orange-500 text-[8px] font-black uppercase tracking-tighter border border-orange-500/20">
+                        TIMELINE DRIFT DETECTED
+                      </div>
+                    )}
+                  </div>
+
+                  {task.carry_forward_count > 0 && (
+                    <>
+                      <Separator className="bg-[#2e2e2e]" />
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                          <span className="text-zinc-500">CARRY FORWARD</span>
+                          <span className="text-yellow-500">X{task.carry_forward_count}</span>
+                        </div>
+                        <div className="max-h-24 overflow-y-auto pr-2 custom-scrollbar">
+                           {task.carry_forward_logs?.slice().reverse().map(log => (
+                             <div key={log.id} className="mb-2 last:mb-0 border-l-2 border-yellow-500/30 pl-2 py-0.5">
+                               <p className="text-[9px] font-bold text-zinc-400 truncate">{log.reason}</p>
+                               <p className="text-[8px] text-zinc-600 font-bold">{safeFormatDate(log.created_at, 'dd MMM yyyy')}</p>
+                             </div>
+                           ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Assignees */}
+              <Card>
+                <CardHeader className="pb-3 px-4 pt-4 border-b border-[#2e2e2e]">
+                  <CardTitle className="text-[11px] text-zinc-500">NODE OPERATIVES</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 space-y-4">
+                  <div className="space-y-3">
+                    {task.assignees?.map((assignee) => (
+                      <div key={assignee.id} className="flex items-center justify-between group">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full border border-[#2e2e2e] bg-[#111] flex items-center justify-center overflow-hidden">
+                            {assignee.avatar_url ? (
+                              <img src={assignee.avatar_url} alt={assignee.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <User size={14} className="text-zinc-500" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-[11px] font-black uppercase tracking-tight text-zinc-300">{assignee.name}</p>
+                            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{assignee.role}</p>
+                          </div>
+                        </div>
+                        {assignee.contribution_pct !== undefined && (
+                          <div className="text-[10px] font-black text-[#F97316] italic">{assignee.contribution_pct}%</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Linked Documents */}
+              <Card>
+                <CardHeader className="pb-3 px-4 pt-4 border-b border-[#2e2e2e]">
+                  <CardTitle className="text-[11px] text-zinc-500">LINKED ASSETS</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  {task.linked_documents && task.linked_documents?.length > 0 ? (
+                    <div className="space-y-2">
+                       {task.linked_documents.map(doc => (
+                         <Link key={doc.id} to={`/documents/${doc.id}`} className="flex items-center gap-2 text-[10px] font-bold text-blue-400 hover:text-blue-300 uppercase tracking-widest truncate group">
+                           <LinkIcon size={10} className="group-hover:rotate-45 transition-transform" />
+                           <span className="truncate">{doc.auto_name}</span>
+                         </Link>
+                       ))}
+                    </div>
+                  ) : (
+                    <p className="text-[9px] text-zinc-600 font-bold uppercase italic text-center">No assets indexed</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Flags & Roadblocks */}
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-2 px-1">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">INCIDENT STATE</span>
+                  <span className={cn("text-[10px] font-black", task.flag_count > 0 ? "text-red-500" : "text-green-500")}>
+                    {task.flag_count} ACTIVE FLAGS
+                  </span>
+                </div>
+                {isAssignee && (task.status === 'pending' || task.status === 'in_progress') && (
+                  <Button 
+                    onClick={() => setIsFlagModalOpen(true)}
+                    variant="outline" 
+                    className="w-full border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-none font-black italic uppercase text-[10px] transition-all"
+                  >
+                    RAISE OPERATIONAL FLAG!!
+                  </Button>
+                )}
+                {task.status === 'flagged' && (
+                   <div className="px-3 py-2 bg-red-900/10 border border-red-500/30 text-red-500 text-[10px] font-black uppercase italic text-center">
+                     PENDING FLAG REVIEW
+                   </div>
+                )}
+              </div>
 
             </div>
+          </aside>
         </div>
-
-        {/* Action Modals */}
-        <RaiseFlagModal 
-          isOpen={isFlagModalOpen} 
-          onClose={() => setIsFlagModalOpen(false)} 
-          taskId={task.id} 
-          taskTitle={task.name}
-        />
       </main>
+
+      {/* --- ADD PROGRESS MODAL placeholder --- */}
+      {/* (Actual implementation would be a Dialog from UI) */}
+      <AddProgressModal 
+        isOpen={isAddProgressOpen} 
+        onClose={() => setIsAddProgressOpen(false)} 
+        taskId={id!}
+      />
+      <RaiseFlagModal 
+        task={task} 
+        isOpen={isFlagModalOpen} 
+        onClose={() => setIsFlagModalOpen(false)} 
+      />
     </div>
+  );
+};
+
+// --- Add Progress Modal Component (Simplified Inline for this example) ---
+
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter
+} from '../components/ui/Dialog';
+
+const AddProgressModal = ({ isOpen, onClose, taskId }: { isOpen: boolean, onClose: () => void, taskId: string }) => {
+  const [type, setType] = useState<ProgressEntry['entry_type']>('text_note');
+  const [content, setContent] = useState('');
+  const [note, setNote] = useState('');
+  const [file, setFile] = useState<File | null>(null);
+  const [saveToHub, setSaveToHub] = useState(false);
+  
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (formData: FormData) => api.post(`/tasks/${taskId}/progress`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['task', taskId] });
+      onClose();
+      // Reset form
+      setType('text_note');
+      setContent('');
+      setNote('');
+      setFile(null);
+    }
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('entry_type', type);
+    formData.append('note', note);
+    if (content) formData.append('content', content);
+    if (file) formData.append('file', file);
+    if (saveToHub) formData.append('save_to_hub', 'true');
+    
+    mutation.mutate(formData);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl bg-[#161616] border-[#2e2e2e]">
+        <DialogHeader className="border-b border-[#2e2e2e] pb-4 mb-4">
+          <DialogTitle>Uplink Progress Data</DialogTitle>
+          <DialogDescription>Submit verified documentation to task timeline</DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-[#F97316]">Protocol Type</label>
+              <select 
+                value={type}
+                onChange={(e) => setType(e.target.value as any)}
+                className="w-full bg-[#111] border border-[#2e2e2e] text-xs font-bold uppercase p-2.5 outline-none focus:border-[#F97316] text-white"
+              >
+                <option value="text_note">Text Note</option>
+                <option value="screenshot">Screenshot (JPG/PNG)</option>
+                <option value="document">Document (PDF/DOC)</option>
+                <option value="link">External URL</option>
+                <option value="code_snippet">Code Snippet</option>
+                <option value="doc_hub_link">Doc Hub Item</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic flex items-center justify-between">
+                <span>Hub Synchronize</span>
+                <input type="checkbox" checked={saveToHub} onChange={e => setSaveToHub(e.target.checked)} className="accent-[#F97316]" />
+              </label>
+              <div className="text-[9px] text-zinc-600 bg-[#111] p-2 border border-[#2e2e2e] h-[42px] flex items-center">
+                INDEX TO GLOBAL REPOSITORY ON SUCCESS
+              </div>
+            </div>
+          </div>
+
+          {(type === 'screenshot' || type === 'document') && (
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Payload Selection</label>
+              <input 
+                type="file" 
+                onChange={e => setFile(e.target.files?.[0] || null)}
+                className="w-full bg-[#111] border border-dashed border-[#2e2e2e] text-[10px] p-8 text-center cursor-pointer hover:border-[#F97316] transition-colors"
+                required
+              />
+            </div>
+          )}
+
+          {(type === 'link' || type === 'code_snippet') && (
+            <div className="space-y-2">
+               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                 {type === 'link' ? 'TARGET URL' : 'CODE RAW DATA'}
+               </label>
+               <textarea 
+                  value={content}
+                  onChange={e => setContent(e.target.value)}
+                  className="w-full bg-[#111] border border-[#2e2e2e] p-4 text-xs font-mono text-zinc-300 outline-none focus:border-[#F97316]"
+                  placeholder={type === 'link' ? 'https://...' : '// Paste code here...'}
+                  rows={4}
+                  required
+               />
+            </div>
+          )}
+
+          <div className="space-y-2">
+             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Annotation / Context Note</label>
+             <textarea 
+                value={note}
+                onChange={e => setNote(e.target.value)}
+                className="w-full bg-[#111] border border-[#2e2e2e] p-4 text-xs text-zinc-300 outline-none focus:border-[#F97316]"
+                placeholder="Declare the purpose of this update..."
+                rows={2}
+             />
+          </div>
+
+          <DialogFooter className="pt-4 border-t border-[#2e2e2e]">
+             <Button type="button" variant="outline" onClick={onClose} className="rounded-none font-black uppercase tracking-widest text-[10px] border-[#2e2e2e]">CANCEL</Button>
+             <Button 
+               type="submit" 
+               disabled={mutation.isPending}
+               className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-black uppercase tracking-widest text-[10px] px-8"
+             >
+               {mutation.isPending ? 'SYNCHRONIZING...' : 'ESTABLISH LINK'}
+             </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   Users, 
@@ -9,9 +9,7 @@ import {
   Loader2,
   Lock,
   MoreVertical,
-  SendHorizonal,
-  ChevronLeft,
-  MessageSquare
+  SendHorizonal
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuthStore } from '../store/useAuthStore';
@@ -34,24 +32,27 @@ const ChatPage: React.FC = () => {
   const { user } = useAuthStore();
   const { connect, socket, messages, setMessages, sendMessage, sendTyping, typing } = useChatStore();
 
+  // Mode state
   const isDM = !!threadId;
   const currentId = groupId || threadId;
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [showPins, setShowPins] = useState(false);
   const [isNewDMModalOpen, setIsNewDMModalOpen] = useState(false);
   
+  // Message Feed Utilities
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // --- WebSocket Connection ---
   useEffect(() => {
     connect();
   }, []);
 
+  // --- Initial Sidebar Data ---
   const { data: groups = [] } = useQuery<ChatGroup[]>({
     queryKey: ['chat-groups'],
     queryFn: async () => {
        const res = await api.get('/chat/groups');
-       const data = Array.isArray(res.data) ? res.data : (res.data?.groups || []);
-       return data.map((g: any) => ({ ...g, name: g.name.replace(/_/g, ' ') }));
+       return Array.isArray(res.data) ? res.data : (res.data?.groups || []);
     }
   });
 
@@ -63,10 +64,32 @@ const ChatPage: React.FC = () => {
     }
   });
 
+  // --- Search Results for DM ---
+  const [dmSearch, setDmSearch] = useState('');
+  const { data: allUsers = [] } = useQuery<any[]>({
+     queryKey: ['users-search', dmSearch],
+     queryFn: async () => {
+        const res = await api.get('/users', { params: { search: dmSearch } });
+        return Array.isArray(res.data) ? res.data : (res.data?.users || []);
+     },
+     enabled: isNewDMModalOpen
+  });
+
+  const startDMMutation = useMutation({
+     mutationFn: (userId: string) => api.post('/chat/dm', { user_id: userId }),
+     onSuccess: (res) => {
+        queryClient.invalidateQueries({ queryKey: ['chat-dms'] });
+        setIsNewDMModalOpen(false);
+        navigate(`/chat/dm/${res.data.thread_id}`);
+     }
+  });
+
+  // --- Active Conversation Info ---
   const activeGroup = groups.find(g => g.id === groupId);
   const activeDM = dms.find(d => d.id === threadId);
-  const conversationName = activeGroup?.name || activeDM?.participant.name || 'Chat';
+  const conversationName = activeGroup?.name || activeDM?.participant.name || 'Secure Channel';
 
+  // --- Message History ---
   const { data: history, isLoading: isHistoryLoading } = useQuery<{ messages: ChatMessage[], has_more: boolean }>({
     queryKey: ['chat-messages', currentId],
     queryFn: async () => {
@@ -78,157 +101,229 @@ const ChatPage: React.FC = () => {
   });
 
   useEffect(() => {
-     if (history?.messages) setMessages(history.messages);
-  }, [history, setMessages]);
+    if (history?.messages) {
+      setMessages(history.messages);
+      // Auto-scroll to bottom on load
+      setTimeout(() => {
+        if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      }, 100);
+    }
+  }, [history, currentId]);
 
-  useEffect(() => {
-    scrollRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  // --- Handlers ---
+  const handleSend = (content: string, _attachment?: File, replyToId?: string) => {
+     if (!socket) return;
+     
+     // Optimized: If attachment, use separate REST flow first or multipart via socket?
+     // User requirement: "On send: emit chat:message event"
+     // For attachments, we handle via multipart REST first then send socket signal.
+     
+     const payload = {
+        group_id: groupId,
+        dm_thread_id: threadId,
+        content,
+        reply_to_id: replyToId,
+        // Attachment ID from a pre-upload flow if applicable
+     };
+     
+     sendMessage(payload);
+  };
+
+  const handleTyping = (isTyping: boolean) => {
+     if (currentId) sendTyping(currentId, isTyping);
+  };
+
+  // Reactions/Pins/etc (REST fallback for persistence)
+  const reactMutation = useMutation({
+     mutationFn: (data: { id: string, emoji: string }) => api.post(`/chat/messages/${data.id}/reactions`, { emoji: data.emoji })
+  });
+
+  const pinMutation = useMutation({
+     mutationFn: (data: { id: string, is_pinned: boolean }) => api.patch(`/chat/messages/${data.id}/pin`, { is_pinned: data.is_pinned }),
+     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chat-messages', currentId] })
+  });
+
+  const deleteMutation = useMutation({
+     mutationFn: (id: string) => api.delete(`/chat/messages/${id}`),
+     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['chat-messages', currentId] })
+  });
 
   return (
-    <div className="flex bg-[#111] h-screen overflow-hidden">
-      <Sidebar />
+    <div className="flex bg-[#111111] min-h-screen font-mono text-zinc-300">
+        <Sidebar />
 
-      <main className="flex-1 md:ml-64 flex flex-col h-full relative">
-        
-        {/* Responsive Mobile Layout: Sidebar vs Content */}
-        <div className="flex h-full overflow-hidden">
-           
-           {/* Conversation List Sidebar */}
-           <div className={cn(
-             "w-full md:w-80 border-r border-[#2e2e2e] bg-[#1a1a1a] flex flex-col shrink-0 transition-all",
-             currentId ? "hidden md:flex" : "flex"
-           )}>
-              <div className="p-6 border-b border-[#2e2e2e] flex flex-col gap-4">
-                 <h2 className="text-xl font-black uppercase text-white tracking-widest">Chat</h2>
-                 <div className="relative group">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 transition-colors group-hover:text-[#F97316]" size={16} />
+        <main className="flex-1 ml-64 p-0 flex h-screen overflow-hidden">
+            
+            {/* Chat Sidebar */}
+            <ChatSidebar 
+              groups={groups} 
+              dms={dms} 
+              onNewGroup={() => {}}
+              onNewDM={() => setIsNewDMModalOpen(true)}
+            />
+
+            {/* Conversation Area */}
+            <div className="flex-1 flex flex-col relative">
+               
+               {/* Conversation Header */}
+               <header className="h-16 px-6 border-b border-[#2e2e2e] bg-[#0d0d0d]/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10">
+                  <div className="flex items-center gap-4">
+                     <span className="text-[#F97316] font-black text-xl italic uppercase"># {conversationName}</span>
+                     {activeGroup && <span className="text-[9px] font-bold text-zinc-600 uppercase italic flex items-center gap-1"><Users size={12} /> {activeGroup.member_count || 0} OPERATIVES</span>}
+                     {activeDM && <Badge className="bg-green-600/10 text-green-500 border-green-500/20 text-[8px] h-4">ONLINE_UPLINK</Badge>}
+                  </div>
+                  <div className="flex items-center gap-4">
+                     <Search size={18} className="text-zinc-600 hover:text-white cursor-pointer" />
+                     <button onClick={() => setShowPins(!showPins)} className={cn("relative p-2 rounded-sm transition-all", showPins ? "bg-[#F97316]/10 text-[#F97316]" : "text-zinc-600 hover:text-white")}>
+                        <Pin size={18} />
+                     </button>
+                     <MoreVertical size={18} className="text-zinc-600 cursor-pointer" />
+                  </div>
+               </header>
+
+               {/* Messages Feed */}
+               <div ref={scrollRef} className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4 bg-[radial-gradient(circle_at_center,_#161616_0%,_#111111_100%)]">
+                  {isHistoryLoading ? (
+                    <div className="flex items-center justify-center h-full"><Loader2 className="animate-spin text-[#F97316]" size={32} /></div>
+                  ) : !currentId ? (
+                    <div className="flex flex-col items-center justify-center h-full opacity-20 grayscale-0 italic text-center">
+                       <Lock size={64} className="text-zinc-700 mb-6" />
+                       <h2 className="text-2xl font-black uppercase tracking-widest text-[#F97316]">Encrypted Hub Access</h2>
+                       <p className="text-[10px] uppercase font-bold mt-2">Select a secure channel to initiate encrypted communication profile.</p>
+                    </div>
+                  ) : (
+                    <>
+                       {/* Load More Trigger */}
+                       <div className="text-center py-4">
+                          <button className="text-[9px] font-black uppercase text-zinc-700 hover:text-zinc-400">Fetch Historic Fragments_</button>
+                       </div>
+
+                       {/* Message Clusters */}
+                       <div className="space-y-6">
+                           {messages.map((m, i) => {
+                             const prev = messages[i-1];
+                             const showDate = !prev || format(new Date(m.created_at), 'yyyy-MM-dd') !== format(new Date(prev.created_at), 'yyyy-MM-dd');
+                             return (
+                               <React.Fragment key={m.id}>
+                                  {showDate && (
+                                     <div className="flex items-center gap-4 py-6">
+                                        <div className="flex-1 h-px bg-[#2e2e2e]" />
+                                        <span className="text-[9px] font-black uppercase text-zinc-600 tracking-[0.4em] italic">{format(new Date(m.created_at), 'MMMM d, yyyy')}</span>
+                                        <div className="flex-1 h-px bg-[#2e2e2e]" />
+                                     </div>
+                                  )}
+                                  <MessageItem 
+                                    message={m} 
+                                    onReply={(msg) => setReplyTo(msg)}
+                                    onReact={(msg, emoji) => reactMutation.mutate({ id: msg.id, emoji })}
+                                    onPin={(msg) => pinMutation.mutate({ id: msg.id, is_pinned: !msg.is_pinned })}
+                                    onEdit={() => {}}
+                                    onDelete={(msg) => deleteMutation.mutate(msg.id)}
+                                  />
+                               </React.Fragment>
+                             )
+                           })}
+                       </div>
+
+                       {/* Typing Indicators */}
+                       <div className="h-6">
+                          {currentId && typing[currentId]?.length > 0 && (
+                             <div className="text-[9px] font-black italic text-zinc-600 uppercase flex items-center gap-2 px-4 animate-pulse">
+                                {typing[currentId].join(', ')} is transmitting data_
+                                <div className="flex gap-0.5">
+                                   <div className="w-1 h-1 bg-zinc-700 rounded-full animate-bounce" />
+                                   <div className="w-1 h-1 bg-zinc-700 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                                   <div className="w-1 h-1 bg-zinc-700 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                                </div>
+                             </div>
+                          )}
+                       </div>
+                    </>
+                  )}
+               </div>
+
+               {/* Input Section */}
+               {currentId && (
+                  <ChatInput 
+                    onSend={handleSend} 
+                    onTyping={handleTyping}
+                    replyTo={replyTo}
+                    onCancelReply={() => setReplyTo(null)}
+                  />
+               )}
+
+               {/* Pins Panel (Overlay) */}
+               {showPins && (
+                  <div className="absolute top-16 right-0 bottom-0 w-[300px] bg-[#0d0d0d] border-l border-[#2e2e2e] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] z-20 flex flex-col p-6 animate-in slide-in-from-right-full duration-300">
+                      <div className="flex items-center justify-between mb-8">
+                         <h3 className="text-xl font-black uppercase italic text-[#F97316] flex items-center gap-2"><Pin size={20} /> Tactical_Pins</h3>
+                         <button onClick={() => setShowPins(false)} className="text-zinc-600 hover:text-white"><X size={20} /></button>
+                      </div>
+                      <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar">
+                         {messages.filter(m => m.is_pinned).map(pm => (
+                            <div key={pm.id} className="p-4 bg-[#161616] border border-[#2e2e2e] space-y-2 relative group hover:border-[#F97316]/50 transition-all">
+                               <div className="flex items-center justify-between">
+                                  <span className="text-[10px] font-black text-white uppercase">{pm.sender.name}</span>
+                                  <span className="text-[8px] font-bold text-zinc-600 uppercase">{format(new Date(pm.created_at), 'MM/dd')}</span>
+                               </div>
+                               <p className="text-[10px] text-zinc-400 line-clamp-3 leading-relaxed font-sans">{pm.content}</p>
+                               <button 
+                                 onClick={() => pinMutation.mutate({ id: pm.id, is_pinned: false })}
+                                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-[#111] text-zinc-600 hover:text-red-500 transition-all"
+                               >
+                                  <X size={10} />
+                               </button>
+                            </div>
+                         ))}
+                         {messages.filter(m => m.is_pinned).length === 0 && (
+                            <div className="h-full flex flex-col items-center justify-center opacity-20 italic space-y-2">
+                               <Pin size={32} />
+                               <span className="text-[10px] font-black uppercase">No Data Anchored</span>
+                            </div>
+                         )}
+                      </div>
+                  </div>
+               )}
+            </div>
+        </main>
+
+        {/* NEW DM MODAL */}
+        <Dialog open={isNewDMModalOpen} onOpenChange={setIsNewDMModalOpen}>
+           <DialogContent className="max-w-md bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 font-mono flex flex-col p-0">
+              <DialogHeader className="p-6 border-b border-[#2e2e2e]">
+                 <DialogTitle className="text-xl font-black uppercase italic text-white flex items-center gap-2">Initiate Secure Channel</DialogTitle>
+              </DialogHeader>
+              <div className="p-6 space-y-6">
+                 <div className="relative">
+                    <Search className="absolute left-3 top-3 text-zinc-600" size={16} />
                     <Input 
-                      placeholder="Search messages..." 
-                      className="bg-[#0d0d0d] border-[#2e2e2e] pl-9 h-10 text-xs rounded-none focus:border-[#F97316]/30"
+                      placeholder="Search operative alias..."
+                      value={dmSearch}
+                      onChange={(e) => setDmSearch(e.target.value)}
+                      className="pl-10 h-12 bg-[#111] border-[#2e2e2e] text-xs font-black uppercase italic focus-visible:border-[#F97316]"
                     />
                  </div>
-              </div>
-
-              <div className="flex-1 overflow-y-auto">
-                 <ChatSidebar 
-                    groups={groups} 
-                    dms={dms} 
-                    activeId={currentId} 
-                    onNewDM={() => setIsNewDMModalOpen(true)}
-                 />
-              </div>
-           </div>
-
-           {/* Message Area */}
-           <div className={cn(
-             "flex-1 flex flex-col bg-[#111111] min-w-0 transition-all",
-             !currentId ? "hidden md:flex items-center justify-center" : "flex"
-           )}>
-              {currentId ? (
-                <>
-                  {/* Chat Header */}
-                  <header className="h-16 px-6 border-b border-[#2e2e2e] bg-[#0d0d0d] flex items-center justify-between shrink-0">
-                     <div className="flex items-center gap-4 truncate">
-                        <button 
-                          onClick={() => navigate('/chat')}
-                          className="p-2 -ml-2 text-zinc-500 hover:text-white md:hidden"
-                        >
-                           <ChevronLeft size={20} />
-                        </button>
-                        <div className="flex flex-col truncate">
-                           <h3 className="text-sm font-black text-white uppercase tracking-widest truncate">{conversationName}</h3>
-                           <div className="flex items-center gap-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                             <span className="text-[8px] text-zinc-500 uppercase font-black tracking-tighter">Active Participants: 12</span>
-                           </div>
-                        </div>
-                     </div>
-                     <div className="flex items-center gap-4">
-                        <button 
-                          onClick={() => setShowPins(!showPins)}
-                          className={cn("p-2 rounded-sm transition-colors", showPins ? "bg-[#F97316]/10 text-[#F97316]" : "text-zinc-600 hover:text-white")}
-                        >
-                           <Pin size={18} />
-                        </button>
-                        <button className="p-2 text-zinc-600 hover:text-white"><MoreVertical size={18} /></button>
-                     </div>
-                  </header>
-
-                  {/* Messages Feed */}
-                  <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6">
-                     {messages.map((msg, idx) => (
-                       <MessageItem 
-                          key={msg.id} 
-                          message={msg} 
-                          isMe={msg.sender.id === user?.id}
-                          onReply={setReplyTo}
-                       />
-                     ))}
-                     <div ref={scrollRef} />
-                  </div>
-
-                  {/* Input Area */}
-                  <div className="p-4 md:p-6 bg-[#0d0d0d] border-t border-[#2e2e2e] shrink-0">
-                     {replyTo && (
-                        <div className="mb-3 p-2 bg-[#1a1a1a] border-l-2 border-[#F97316] flex items-center justify-between animate-in slide-in-from-bottom-2">
-                           <div className="text-[9px] uppercase font-bold text-zinc-500">Replying to <span className="text-[#F97316]">{replyTo.sender.name}</span></div>
-                           <button onClick={() => setReplyTo(null)} className="text-zinc-600 hover:text-white"><X size={14} /></button>
-                        </div>
-                     )}
-                     <ChatInput 
-                        onSend={(content) => sendMessage({ type: 'chat:message', payload: { content, reply_to: replyTo?.id } })} 
-                        onTyping={(isTyping) => sendTyping(currentId, isTyping)}
-                     />
-                  </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center gap-6 opacity-10">
-                   <MessageSquare size={120} strokeWidth={0.5} />
-                   <div className="flex flex-col items-center gap-2">
-                      <h3 className="text-xl font-black uppercase tracking-widest italic">Pick a conversation</h3>
-                      <p className="text-[10px] uppercase font-bold tracking-tighter">Select a group or start a direct message to begin chatting.</p>
-                   </div>
-                </div>
-              )}
-           </div>
-        </div>
-
-        {/* User Picker Modal for DM */}
-        <Dialog open={isNewDMModalOpen} onOpenChange={setIsNewDMModalOpen}>
-           <DialogContent className="bg-[#111] border-[#2e2e2e] text-white rounded-none max-w-sm">
-              <DialogHeader>
-                 <DialogTitle className="text-xs font-black uppercase tracking-[0.2em] text-[#F97316]">New Direct Message</DialogTitle>
-              </DialogHeader>
-              <div className="pt-4 space-y-4">
-                 <Input 
-                   placeholder="Search people..." 
-                   className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none focus:border-[#F97316]/30"
-                 />
-                 <div className="max-h-60 overflow-y-auto space-y-1">
-                    {/* Mock users for now */}
-                    {[
-                      {id: 'u1', name: 'Alpha Admin', role: 'admin'},
-                      {id: 'u2', name: 'Bravo User', role: 'manager'},
-                      {id: 'u3', name: 'Charlie Coder', role: 'coder'}
-                    ].map(u => (
+                 <div className="h-64 overflow-y-auto space-y-1 custom-scrollbar">
+                    {allUsers.filter(u => u.id !== user?.id).map((u: any) => (
                        <button 
                          key={u.id}
-                         onClick={() => navigate(`/chat/dm/${u.id}`)}
-                         className="w-full flex items-center gap-3 p-3 hover:bg-zinc-900 transition-all border border-transparent hover:border-zinc-800"
-                        >
-                          <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700" />
-                          <div className="flex flex-col text-left">
-                             <span className="text-[11px] font-black uppercase truncate">{u.name}</span>
-                             <span className="text-[8px] text-zinc-600 font-bold uppercase">{u.role}</span>
+                         onClick={() => startDMMutation.mutate(u.id)}
+                         className="w-full p-3 flex items-center gap-4 hover:bg-[#F97316]/10 border border-transparent hover:border-[#F97316]/30 transition-all group"
+                       >
+                          <div className="w-10 h-10 rounded-full border border-[#2e2e2e] bg-[#1a1a1a] overflow-hidden group-hover:border-[#F97316]/50">
+                             {u.avatar_url && <img src={u.avatar_url} className="w-full h-full object-cover" />}
                           </div>
-                        </button>
+                          <div className="text-left">
+                             <p className="text-xs font-black uppercase text-white group-hover:text-[#F97316] transition-colors">{u.name}</p>
+                             <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{u.role}</p>
+                          </div>
+                          <SendHorizonal size={14} className="ml-auto opacity-0 group-hover:opacity-100 text-[#F97316] transition-opacity" />
+                       </button>
                     ))}
                  </div>
               </div>
            </DialogContent>
         </Dialog>
-      </main>
     </div>
   );
 };

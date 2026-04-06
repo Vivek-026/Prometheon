@@ -21,17 +21,17 @@ const Dashboard: React.FC = () => {
             <Sidebar />
 
             {/* Main Content Area */}
-            <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto">
-                <PageHeader title="Dashboard" subtitle={`${role} View`} />
+            <main className="flex-1 ml-64 p-8 overflow-y-auto">
+                <PageHeader title="Control Center" subtitle={`${role} Portal`} />
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 pb-20 md:pb-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Widgets for ALL roles */}
                     <ActiveTasksWidget />
                     <CarryForwardWidget />
 
                     {/* Role Specific Widgets */}
                     {role === 'coder' && (
-                        <div className="col-span-1">
+                        <div className="col-span-1 md:col-span-1 lg:col-span-1">
                             <MyFlagsWidget />
                         </div>
                     )}
@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Background Decoratives */}
-                <div className="hidden md:block fixed bottom-0 right-0 p-8 opacity-5 pointer-events-none -z-1 font-mono text-[200px] font-black uppercase tracking-tighter leading-none italic select-none">
+                <div className="fixed bottom-0 right-0 p-8 opacity-5 pointer-events-none -z-1 font-mono text-[200px] font-black uppercase tracking-tighter leading-none italic select-none">
                     PROMETHEON
                 </div>
             </main>

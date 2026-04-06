@@ -34,17 +34,18 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Completion Trend */}
-          <Card className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none shadow-[0_0_20px_rgba(0,0,0,0.3)] group overflow-hidden">
+          <Card className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none shadow-[0_0_20px_rgba(0,0,0,0.3)]">
              <CardHeader className="p-6 border-b border-[#2e2e2e] flex flex-row items-center justify-between">
                 <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-[#F97316] flex items-center gap-2">
-                   <Target size={16} /> Completion Rate Trend
+                   <Target size={16} /> Completion_Protocol_Trend
                 </CardTitle>
                 <div className="flex items-center gap-2 px-2 py-0.5 bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black italic rounded-full">
-                   <TrendingUpIcon size={12} /> ON TRACK
+                   <TrendingUpIcon size={12} /> OPTIMAL_STATUS
                 </div>
              </CardHeader>
              <CardContent className="p-6">
                 <div style={{ width: '100%', height: 300 }}>
+                   {/* @ts-ignore */}
                    <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={data?.completion_trend || []}>
                          <defs>
@@ -68,15 +69,16 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
           </Card>
 
           {/* Velocity Trend */}
-          <Card className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none shadow-[0_0_20px_rgba(0,0,0,0.3)] group overflow-hidden">
+          <Card className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none shadow-[0_0_20px_rgba(0,0,0,0.3)]">
              <CardHeader className="p-6 border-b border-[#2e2e2e] flex flex-row items-center justify-between">
                 <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-[#6366f1] flex items-center gap-2">
-                   <Activity size={16} /> Work Output Tracking
+                   <Activity size={16} /> Velocity_Execution_Registry
                 </CardTitle>
-                <Badge className="bg-[#111] text-zinc-600 border-zinc-800 text-[8px] h-5 rounded-none font-black italic">QUARTERLY VOLUME</Badge>
+                <Badge className="bg-[#111] text-zinc-600 border-zinc-800 text-[8px] h-5 rounded-none font-black italic">QUARTERLY_OUTPUT</Badge>
              </CardHeader>
              <CardContent className="p-6">
                 <div style={{ width: '100%', height: 300 }}>
+                   {/* @ts-ignore */}
                    <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={data?.velocity_trend || []}>
                          <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
@@ -95,35 +97,74 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
        </div>
 
        {/* Top Personnel Quarterly Performance */}
-       <div className="space-y-6 pb-12">
+       <div className="space-y-4">
           <h3 className="text-xs font-black uppercase tracking-[0.2em] italic text-zinc-500 flex items-center gap-3">
-             <Award size={14} className="text-[#F97316]" /> Performance Leaders
+             <Award size={14} className="text-[#F97316]" /> HighPersonnel_Efficiency_Audit
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             {(data?.top_users || []).map((user, idx) => (
-                <div key={user.id} className="p-5 bg-zinc-950/40 border border-[#2e2e2e] hover:border-[#F97316]/40 transition-all flex items-center justify-between group relative overflow-hidden">
-                   <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-10 transition-opacity pointer-events-none">
-                      <Award size={64} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+             {(data?.per_person || []).map((p) => (
+                <div key={p.user.id} className="relative bg-[#0d0d0d] border border-[#2e2e2e] p-5 flex flex-col gap-4 group hover:border-[#F97316]/50 transition-all overflow-hidden border-t-2 border-t-[#F97316]">
+                   <div className="absolute -right-2 -bottom-2 text-zinc-900 group-hover:text-[#F97316]/10 transition-colors">
+                      <Zap size={64} fill="currentColor" />
                    </div>
-                   <div className="flex items-center gap-4">
-                      <div className="relative">
-                        <div className="w-12 h-12 rounded-full border-2 border-zinc-800 p-0.5 group-hover:border-[#F97316] transition-all overflow-hidden bg-zinc-900">
-                           <img src={user.avatar_url} alt={user.name} className="w-full h-full object-cover rounded-full" />
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-[#F97316] rounded-full border-2 border-black flex items-center justify-center text-[8px] font-black italic">{idx + 1}</div>
+                   
+                   <div className="flex flex-col gap-1 z-10">
+                      <span className="text-[10px] font-black uppercase text-white truncate tracking-widest">{p.user.name}</span>
+                      <span className="text-[7px] text-zinc-700 font-bold uppercase italic tracking-tighter">OPERATIVE_ID: {p.user.id.slice(0,8)}</span>
+                   </div>
+
+                   <div className="grid grid-cols-2 gap-4 z-10 pt-2 border-t border-zinc-900">
+                      <div className="flex flex-col gap-1">
+                         <span className="text-[8px] font-black text-zinc-600 uppercase">PROTOCOL_EX_TOTAL</span>
+                         <span className="text-sm font-black text-zinc-400 italic font-mono">{p.total}</span>
                       </div>
-                      <div className="flex flex-col">
-                         <span className="text-[11px] font-black uppercase text-white truncate max-w-[120px]">{user.name}</span>
-                         <span className="text-[8px] text-zinc-600 font-bold uppercase italic">{user.role}</span>
+                      <div className="flex flex-col gap-1">
+                         <span className="text-[8px] font-black text-zinc-600 uppercase">COMPLETION_RATE</span>
+                         <span className="text-sm font-black text-green-500 italic font-mono">{Math.round((p.completed / Math.max(1, p.total)) * 100)}%</span>
                       </div>
                    </div>
-                   <div className="text-right">
-                      <div className="text-2xl font-black italic tracking-tighter text-[#F97316]">{user.score}</div>
-                      <div className="text-[8px] text-zinc-700 font-bold uppercase tracking-widest">Perf Index</div>
+
+                   <div className="w-full h-1 bg-zinc-900 rounded-full overflow-hidden z-10">
+                      <div className="h-full bg-green-500/50 shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all" style={{ width: `${(p.completed / Math.max(1, p.total)) * 100}%` }} />
                    </div>
                 </div>
              ))}
           </div>
+       </div>
+
+       {/* Detailed Auditor Table */}
+       <div className="bg-[#0b0b0b] border border-[#2e2e2e] overflow-hidden rounded-none">
+          <table className="w-full text-[10px] uppercase font-bold italic tracking-tighter">
+             <thead className="bg-[#111] border-b border-[#2e2e2e] text-zinc-600">
+                <tr>
+                   <th className="p-4 text-left">Target Operative</th>
+                   <th className="p-4 text-center">Quarterly_Protocol</th>
+                   <th className="p-4 text-center">Completed_Cycle</th>
+                   <th className="p-4 text-center">Carry_Forward_Metric</th>
+                   <th className="p-4 text-right">Access_Profile</th>
+                </tr>
+             </thead>
+             <tbody className="divide-y divide-zinc-900">
+                {(data?.per_person || []).map(p => (
+                   <tr key={p.user.id} className="hover:bg-zinc-900 transition-colors group">
+                      <td className="p-4 font-black tracking-tight text-white">{p.user.name}</td>
+                      <td className="p-4 text-center font-black text-zinc-500 italic">{p.total} UNITS</td>
+                      <td className="p-4 text-center">
+                         <Badge className="bg-green-600/10 text-green-500 border-none rounded-none italic px-3">{p.completed} DONE</Badge>
+                      </td>
+                      <td className="p-4 text-center">
+                         <div className="inline-flex items-center gap-1.5 text-yellow-500">
+                            <TrendingDown size={12} className="text-zinc-700" />
+                            {p.carry_forwards} DELAYS
+                         </div>
+                      </td>
+                      <td className="p-4 text-right">
+                         <button className="text-zinc-700 hover:text-[#F97316] transition-colors"><ChevronRight size={16} /></button>
+                      </td>
+                   </tr>
+                ))}
+             </tbody>
+          </table>
        </div>
     </div>
   );

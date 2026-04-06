@@ -16,8 +16,7 @@ import {
   History,
   Upload,
   ArrowUpDown,
-  AlertCircle,
-  Menu
+  AlertCircle
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useAuthStore } from '../store/useAuthStore';
@@ -37,19 +36,20 @@ import type { HubDocument, UserSummary } from '../types/tasks';
 
 // --- MOCK DATA ---
 const MOCK_DOCS: HubDocument[] = [
-  { id: 'd1', auto_name: 'Product-Guide-v1.2.pdf', original_filename: 'prd_v1.2.pdf', category: 'product', tags: ['core', 'v1'], upload_origin: 'direct_upload', uploaded_by: { id: 'u1', name: 'Alpha Admin' }, mime_type: 'application/pdf', file_size_bytes: 4500000, version_number: 1, is_current_version: true, created_at: '2026-04-01T10:00:00Z' },
-  { id: 'd2', auto_name: 'Process-Manual.md', original_filename: 'sop_s7.md', category: 'process', tags: ['security', 'sop'], upload_origin: 'direct_upload', uploaded_by: { id: 'u2', name: 'Bravo User' }, mime_type: 'text/markdown', file_size_bytes: 12000, version_number: 2, is_current_version: true, created_at: '2026-04-02T14:30:00Z' },
-  { id: 'd3', auto_name: 'Revenue-Projection.xlsx', original_filename: 'q3_rev.xlsx', category: 'finance', tags: ['projection', 'q3'], upload_origin: 'direct_upload', uploaded_by: { id: 'u1', name: 'Alpha Admin' }, mime_type: 'application/xlsx', file_size_bytes: 2500000, version_number: 1, is_current_version: true, created_at: '2026-04-03T09:15:00Z' },
-  { id: 'd4', auto_name: 'Bug-Report-88.png', original_filename: 'task88_bug.png', category: 'task_uploads', tags: ['bug', 'ui'], upload_origin: 'progress_file', uploaded_by: { id: 'u3', name: 'Charlie Coder' }, mime_type: 'image/png', file_size_bytes: 850000, version_number: 1, is_current_version: true, created_at: '2026-04-04T16:20:00Z' },
-  { id: 'd5', auto_name: 'Legal-Compliance.pdf', original_filename: 'legal_compl.pdf', category: 'legal_hr', tags: ['legal', 'hr'], upload_origin: 'direct_upload', uploaded_by: { id: 'u2', name: 'Bravo User' }, mime_type: 'application/pdf', file_size_bytes: 3200000, version_number: 1, is_current_version: true, created_at: '2026-04-04T18:00:00Z' },
+  { id: 'd1', auto_name: 'PRD-CORE-v1.2.PDF', original_filename: 'prd_v1.2.pdf', category: 'product', tags: ['core', 'v1'], upload_origin: 'direct_upload', uploaded_by: { id: 'u1', name: 'Commander Alpha' }, mime_type: 'application/pdf', file_size_bytes: 4500000, version_number: 1, is_current_version: true, created_at: '2026-04-01T10:00:00Z' },
+  { id: 'd2', auto_name: 'SOP-SECTOR-7.MD', original_filename: 'sop_s7.md', category: 'process', tags: ['security', 'sop'], upload_origin: 'direct_upload', uploaded_by: { id: 'u2', name: 'Bravo Operative' }, mime_type: 'text/markdown', file_size_bytes: 12000, version_number: 2, is_current_version: true, created_at: '2026-04-02T14:30:00Z' },
+  { id: 'd3', auto_name: 'Q3-REVENUE-PROJECTION.XLSX', original_filename: 'q3_rev.xlsx', category: 'finance', tags: ['projection', 'q3'], upload_origin: 'direct_upload', uploaded_by: { id: 'u1', name: 'Commander Alpha' }, mime_type: 'application/xlsx', file_size_bytes: 2500000, version_number: 1, is_current_version: true, created_at: '2026-04-03T09:15:00Z' },
+  { id: 'd4', auto_name: 'SCREENSHOT-TASK-88.PNG', original_filename: 'task88_bug.png', category: 'task_uploads', tags: ['bug', 'ui'], upload_origin: 'progress_file', uploaded_by: { id: 'u3', name: 'Charlie Coder' }, mime_type: 'image/png', file_size_bytes: 850000, version_number: 1, is_current_version: true, created_at: '2026-04-04T16:20:00Z' },
+  { id: 'd5', auto_name: 'LEGAL-COMPLIANCE-DOC.PDF', original_filename: 'legal_compl.pdf', category: 'legal_hr', tags: ['legal', 'hr'], upload_origin: 'direct_upload', uploaded_by: { id: 'u2', name: 'Bravo Operative' }, mime_type: 'application/pdf', file_size_bytes: 3200000, version_number: 1, is_current_version: true, created_at: '2026-04-04T18:00:00Z' },
 ];
 
 const MOCK_USERS: (UserSummary & { doc_count: number })[] = [
-  { id: 'u1', name: 'Alpha Admin', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha', doc_count: 12 },
-  { id: 'u2', name: 'Bravo User', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bravo', doc_count: 8 },
+  { id: 'u1', name: 'Commander Alpha', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha', doc_count: 12 },
+  { id: 'u2', name: 'Bravo Operative', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bravo', doc_count: 8 },
   { id: 'u3', name: 'Charlie Coder', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie', doc_count: 4 },
 ];
 
+// --- Helper for File Icons ---
 const getFileIcon = (mimeType: string) => {
   if (mimeType.includes('image')) return <FileImage className="text-pink-500" />;
   if (mimeType.includes('pdf')) return <FileText className="text-red-500" />;
@@ -58,6 +58,7 @@ const getFileIcon = (mimeType: string) => {
   return <FileIcon className="text-zinc-500" />;
 };
 
+// --- SAFETY WRAPPERS ---
 const safeFormatDistance = (dateStr: string | undefined | null) => {
     if (!dateStr) return 'N/A';
     try {
@@ -73,20 +74,24 @@ const DocumentHub: React.FC = () => {
     const { user } = useAuthStore();
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const isAdmin = user?.role === 'admin';
 
+    // --- Filter States ---
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
     const [search, setSearch] = useState('');
     const [selectedUser, setSelectedUser] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<'recent' | 'oldest' | 'name'>('recent');
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+    const [isVersionDialogOpen, setIsVersionDialogOpen] = useState(false);
     
     // Upload Form State
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [uploadCategory, setUploadCategory] = useState<string>('');
     const [uploadTags, setUploadTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState('');
+    const [pendingUploadData, setPendingUploadData] = useState<any>(null);
 
+    // --- Queries ---
     const { data: documents, isLoading } = useQuery<HubDocument[]>({
         queryKey: ['documents', categoryFilter, search, selectedUser, sortBy],
         queryFn: async () => {
@@ -95,263 +100,393 @@ const DocumentHub: React.FC = () => {
                 if (categoryFilter !== 'all') params.category = categoryFilter;
                 if (search) params.search = search;
                 if (selectedUser) params.user_id = selectedUser;
-                params.sort = sortBy;
-                
+                if (sortBy) params.sort = sortBy;
+
                 const res = await api.get('/documents', { params });
                 return Array.isArray(res.data) ? res.data : MOCK_DOCS;
             } catch (e) {
                 return MOCK_DOCS;
             }
-        },
+        }
     });
 
-    const categories = [
-        { id: 'all', label: 'All Files', count: MOCK_DOCS.length },
-        { id: 'product', label: 'Product Docs', count: 12 },
-        { id: 'process', label: 'Process Manuals', count: 8 },
-        { id: 'finance', label: 'Finance', count: 4 },
-        { id: 'legal_hr', label: 'Legal & HR', count: 6 },
-        { id: 'technical', label: 'Technical Specs', count: 15 },
-        { id: 'task_uploads', label: 'Task Uploads', count: 22 },
-    ];
+    const { data: teamMembers } = useQuery({
+        queryKey: ['users'],
+        queryFn: async () => {
+           try {
+             const res = await api.get('/users');
+             return Array.isArray(res.data) ? res.data : MOCK_USERS;
+           } catch(e) {
+             return MOCK_USERS;
+           }
+        }
+    });
 
-    const filteredDocs = Array.isArray(documents) ? documents : MOCK_DOCS;
+    // --- Mutations ---
+    const uploadMutation = useMutation({
+        mutationFn: async ({ file, category, tags, linkVersionId }: any) => {
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('category', category);
+            tags.forEach((t: string) => formData.append('tags[]', t));
+            
+            if (linkVersionId) {
+                return api.post(`/documents/${linkVersionId}/link-version`, formData);
+            }
+            return api.post('/documents/upload', formData);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['documents'] });
+            setIsUploadModalOpen(false);
+            setUploadFile(null);
+            setUploadCategory('');
+            setUploadTags([]);
+        }
+    });
+
+    // --- Logic ---
+    const filteredDocs = (documents || []).filter(doc => {
+       if (categoryFilter !== 'all' && doc.category !== categoryFilter) return false;
+       if (search) {
+         const s = search.toLowerCase();
+         return doc.auto_name.toLowerCase().includes(s) || 
+                doc.original_filename.toLowerCase().includes(s) || 
+                doc.tags.some(t => t.toLowerCase().includes(s));
+       }
+       if (doc.category === 'finance' && !isAdmin) return false;
+       return true;
+     }).sort((a, b) => {
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      if (sortBy === 'recent') return timeB - timeA;
+      if (sortBy === 'oldest') return timeA - timeB;
+      return a.auto_name.localeCompare(b.auto_name);
+    });
+
+    // --- Handlers ---
+    const handleAddTag = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && tagInput.trim()) {
+        e.preventDefault();
+        if (!uploadTags.includes(tagInput.trim())) {
+          setUploadTags([...uploadTags, tagInput.trim()]);
+        }
+        setTagInput('');
+      }
+    };
+
+    const handleUploadSubmit = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!uploadFile || !uploadCategory) return;
+
+      // Logic check for linking versions (Simplified for now)
+      const existingDoc = filteredDocs.find(d => d.original_filename === uploadFile.name);
+      if (existingDoc) {
+        setPendingUploadData({ file: uploadFile, category: uploadCategory, tags: uploadTags, linkVersionId: existingDoc.id });
+        setIsVersionDialogOpen(true);
+      } else {
+        uploadMutation.mutate({ file: uploadFile, category: uploadCategory, tags: uploadTags });
+      }
+    };
 
     return (
-        <div className="flex bg-[#111111] min-h-screen">
-          <Sidebar />
+        <div className="flex bg-[#111111] min-h-screen font-mono text-zinc-300">
+            <Sidebar />
 
-          <main className="flex-1 md:ml-64 p-4 md:p-8 w-full max-w-[100vw] overflow-x-hidden">
-            <PageHeader title="Documents" subtitle="Browse and manage all shared files" />
-
-            <div className="flex flex-col lg:flex-row gap-8">
+            <main className="flex-1 ml-64 p-8 flex flex-col gap-10">
+                <PageHeader title="Intelligence Hub" subtitle="Document Registry" />
                 
-                {/* Left Sidebar: Filters (Responsive Overlay/Drawer on Mobile) */}
-                <div className={cn(
-                    "lg:w-64 space-y-8 shrink-0 transition-all duration-300",
-                    isMobileFiltersOpen ? "fixed inset-0 z-50 bg-[#111] p-8 overflow-y-auto" : "hidden lg:block"
-                )}>
-                    {isMobileFiltersOpen && (
-                        <div className="flex justify-between items-center mb-8">
-                            <h2 className="text-xl font-black uppercase text-[#F97316]">Filters</h2>
-                            <button onClick={() => setIsMobileFiltersOpen(false)} className="p-2 text-zinc-500"><X size={24} /></button>
-                        </div>
-                    )}
+                <div className="flex gap-8">
+                    {/* LEFT PANEL: FILTERS */}
+                    <aside className="w-72 space-y-10 shrink-0">
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2">
+                                <Filter size={14} className="text-[#F97316]" />
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em]">Filter Database</h2>
+                            </div>
+                            
+                            <section className="space-y-3">
+                                <Label className="text-zinc-600 block mb-1">Sector Class</Label>
+                                <RadioGroup className="flex flex-col gap-1.5">
+                                    {['all', 'product', 'process', 'meetings', 'research', 'legal_hr', 'task_uploads', 'finance'].map(cat => (
+                                        (cat !== 'finance' || isAdmin) && (
+                                            <RadioGroupItem 
+                                                key={cat}
+                                                label={cat.replace('_', '/')}
+                                                checked={categoryFilter === cat}
+                                                onChange={() => setCategoryFilter(cat)}
+                                                className="py-1.5 px-3 border-transparent has-[:checked]:bg-[#1a1a1a] has-[:checked]:border-[#2e2e2e]"
+                                                variantColor={categoryFilter === cat ? "text-[#F97316]" : "text-zinc-500"}
+                                            />
+                                        )
+                                    ))}
+                                </RadioGroup>
+                            </section>
 
-                    {/* Category Filter */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-zinc-500">
-                           <Filter size={14} />
-                           <h3 className="text-[10px] font-black uppercase tracking-widest italic">Categories</h3>
+                            <Separator className="bg-[#2e2e2e]" />
+
+                            <section className="space-y-4">
+                                <Label className="text-zinc-600">By Operative</Label>
+                                <div className="space-y-1.5">
+                                    {(teamMembers && Array.isArray(teamMembers) ? teamMembers : []).map((m: any) => (
+                                        <button 
+                                            key={m.id} 
+                                            onClick={() => setSelectedUser(selectedUser === m.id ? null : m.id)}
+                                            className={cn(
+                                                "w-full flex items-center justify-between p-2 transition-all group",
+                                                selectedUser === m.id ? "bg-[#1a1a1a] border border-[#2e2e2e]" : "hover:bg-[#1a1a1a]/50"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#2e2e2e] flex items-center justify-center overflow-hidden">
+                                                    {m.avatar_url ? <img src={m.avatar_url} className="w-full h-full object-cover" /> : <UserIcon size={12} />}
+                                                </div>
+                                                <span className={cn("text-[10px] font-black uppercase tracking-tight", selectedUser === m.id ? "text-[#F97316]" : "text-zinc-400 group-hover:text-white")}>{m.name}</span>
+                                            </div>
+                                            {m.doc_count !== undefined && (
+                                                <span className="text-[9px] font-bold text-zinc-600 bg-[#111] px-1.5 py-0.5 border border-[#2e2e2e]">{m.doc_count}</span>
+                                            )}
+                                        </button>
+                                    ))}
+                                </div>
+                            </section>
+
+                            <Separator className="bg-[#2e2e2e]" />
+
+                            <section className="space-y-3">
+                                <Label className="text-zinc-600">Origin / Uplink</Label>
+                                <select className="w-full bg-[#1a1a1a] border border-[#2e2e2e] text-[9px] font-black uppercase p-2.5 outline-none focus:border-[#F97316]">
+                                    <option>All Sources</option>
+                                    <option>Direct Upload</option>
+                                    <option>Task Brief</option>
+                                    <option>Progress File</option>
+                                    <option>Chat Attachment</option>
+                                </select>
+                            </section>
                         </div>
-                        <div className="space-y-1">
-                            {categories.map(cat => (
-                                <button
-                                  key={cat.id}
-                                  onClick={() => { setCategoryFilter(cat.id); setIsMobileFiltersOpen(false); }}
-                                  className={cn(
-                                    "w-full flex items-center justify-between px-3 py-2 text-[11px] font-bold uppercase transition-all rounded-sm",
-                                    categoryFilter === cat.id ? "bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20" : "text-zinc-500 hover:bg-zinc-900 hover:text-zinc-300"
-                                  )}
+                    </aside>
+
+                    {/* MAIN CONTENT Area */}
+                    <div className="flex-1 space-y-8">
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="relative flex-1 group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#F97316] transition-colors" size={16} />
+                                <Input 
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="SEARCH HUB BY IDENTIFIER, FILE NAME, OR META-TAG..."
+                                    className="pl-10 h-12 bg-[#1a1a1a] border-[#2e2e2e] rounded-none focus-visible:border-[#F97316] tracking-widest text-[11px] uppercase font-black italic"
+                                />
+                            </div>
+                            
+                            <div className="flex items-center gap-3">
+                                <div className="flex bg-[#1a1a1a] border border-[#2e2e2e] p-1">
+                                    <button 
+                                        onClick={() => setSortBy('recent')} 
+                                        className={cn("px-4 h-9 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all", sortBy === 'recent' ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white")}
+                                    >
+                                        <History size={14} /> RECENT
+                                    </button>
+                                    <button 
+                                        onClick={() => setSortBy('name')} 
+                                        className={cn("px-4 h-9 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all", sortBy === 'name' ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white")}
+                                    >
+                                        <ArrowUpDown size={14} /> A-Z
+                                    </button>
+                                </div>
+
+                                <Button 
+                                    onClick={() => setIsUploadModalOpen(true)}
+                                    className="h-11 px-6 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-black flex gap-2"
                                 >
-                                    <span>{cat.label}</span>
-                                    <span className="opacity-40 text-[9px]">{cat.count}</span>
-                                </button>
-                            ))}
+                                    <Plus size={16} strokeWidth={3} /> ESTABLISH TRANSMISSION
+                                </Button>
+                            </div>
                         </div>
-                    </div>
 
-                    <Separator className="bg-zinc-900" />
+                        {/* Document Grid */}
+                        {isLoading ? (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
+                                {[1,2,3,4,5,6].map(i => <div key={i} className="h-48 bg-[#0d0d0d] border border-[#2e2e2e]" />)}
+                            </div>
+                        ) : filteredDocs.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center p-32 opacity-20 grayscale-0 italic text-center">
+                                <AlertCircle size={48} className="mb-4" />
+                                <span className="text-xl font-black uppercase tracking-widest">Null Archive Data_</span>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredDocs.map(doc => (
+                                    <Card 
+                                        key={doc.id}
+                                        onClick={() => navigate(`/documents/${doc.id}`)}
+                                        className="bg-[#0d0d0d] border border-[#2e2e2e] rounded-none group hover:border-[#F97316]/40 transition-all cursor-pointer relative overflow-hidden"
+                                    >
+                                        <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-100 transition-opacity">
+                                            {getFileIcon(doc.mime_type)}
+                                        </div>
+                                        <CardContent className="p-5 space-y-4">
+                                            <div className="flex flex-col gap-1.5 min-w-0">
+                                                <Badge variant="outline" className="w-fit text-[8px] h-4 border-zinc-800 uppercase font-black text-zinc-600">{doc.category}</Badge>
+                                                <h3 className="text-[11px] font-black uppercase text-white truncate pr-6 tracking-tight">{doc.auto_name}</h3>
+                                            </div>
+                                            
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {doc.tags.slice(0,3).map(tag => (
+                                                    <span key={tag} className="text-[8px] font-bold text-zinc-600 uppercase border border-zinc-900 px-1 italic">#{tag}</span>
+                                                ))}
+                                            </div>
 
-                    {/* People Filter */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-zinc-500">
-                           <UserIcon size={14} />
-                           <h3 className="text-[10px] font-black uppercase tracking-widest italic">By Person</h3>
-                        </div>
-                        <div className="space-y-3">
-                            <button 
-                                onClick={() => { setSelectedUser(null); setIsMobileFiltersOpen(false); }}
-                                className={cn(
-                                    "w-full text-left px-3 py-1 text-[11px] font-bold uppercase",
-                                    !selectedUser ? "text-[#F97316]" : "text-zinc-600"
-                                )}
-                            >
-                                All People
-                            </button>
-                            {MOCK_USERS.map(u => (
-                                <button 
-                                  key={u.id} 
-                                  onClick={() => { setSelectedUser(u.id); setIsMobileFiltersOpen(false); }}
-                                  className={cn(
-                                    "w-full flex items-center gap-3 px-3 py-1 group transition-all",
-                                    selectedUser === u.id ? "opacity-100" : "opacity-40 hover:opacity-100"
-                                  )}
-                                >
-                                   <div className="w-6 h-6 rounded-full overflow-hidden border border-zinc-800 p-0.5 group-hover:border-[#F97316]">
-                                      <img src={u.avatar_url} alt={u.name} className="w-full h-full rounded-full" />
-                                   </div>
-                                   <span className={cn(
-                                       "text-[10px] font-bold uppercase truncate",
-                                       selectedUser === u.id ? "text-white" : "text-zinc-500"
-                                   )}>{u.name}</span>
-                                </button>
-                            ))}
-                        </div>
+                                            <Separator className="bg-[#1a1a1a]" />
+
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center border border-zinc-800 overflow-hidden">
+                                                        <img src={doc.uploaded_by.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${doc.uploaded_by.name}`} className="w-full h-full object-cover" />
+                                                    </div>
+                                                    <span className="text-[8px] font-black uppercase text-zinc-600 italic leading-none">{doc.uploaded_by.name}</span>
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-[8px] font-bold text-zinc-800 uppercase leading-none">{safeFormatDistance(doc.created_at)}</span>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
+            </main>
 
-                {/* Right Content Area: Main Documents Grid */}
-                <div className="flex-1 space-y-6">
-                    
-                    {/* Search & Global Actions */}
-                    <div className="flex flex-col md:flex-row gap-4 justify-between items-center bg-[#1a1a1a] p-4 border border-zinc-900 rounded-sm">
-                        <div className="relative w-full md:w-96 group">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-hover:text-[#F97316] transition-colors" size={18} />
-                            <Input 
-                                placeholder="Search files by name or tag..." 
-                                className="pl-10 bg-[#0d0d0d] border-[#2e2e2e] focus:border-[#F97316]/30 text-xs py-5"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+            {/* --- UPLOAD MODAL --- */}
+            <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
+                <DialogContent className="max-w-xl bg-[#161616] border-[#2e2e2e] text-zinc-300">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black uppercase tracking-tighter italic">Upload Asset Protocol</DialogTitle>
+                        <DialogDescription className="text-[10px] text-zinc-500 uppercase tracking-widest">Ensure compliance before establishing data uplink</DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleUploadSubmit} className="space-y-6 pt-4">
+                        <div 
+                          className={cn(
+                            "border-2 border-dashed border-[#2e2e2e] p-10 flex flex-col items-center justify-center gap-4 transition-all hover:border-[#F97316]/50 cursor-pointer",
+                            uploadFile ? "border-solid border-[#F97316] bg-[#F97316]/5" : "bg-[#111]"
+                          )}
+                          onClick={() => document.getElementById('hub-upload')?.click()}
+                        >
+                            <input id="hub-upload" type="file" className="hidden" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} />
+                            {uploadFile ? (
+                                <>
+                                   <div className="p-3 bg-[#F97316] text-black">
+                                      <Upload size={24} />
+                                   </div>
+                                   <div className="text-center">
+                                      <p className="text-xs font-black uppercase">{uploadFile.name}</p>
+                                      <p className="text-[10px] text-[#F97316] font-bold uppercase mt-1">{(uploadFile.size / 1024).toFixed(1)} KB / VALIDATED</p>
+                                   </div>
+                                </>
+                            ) : (
+                                <>
+                                   <Upload size={32} className="text-zinc-600" />
+                                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Uplink target file locally or remote</p>
+                                   <p className="text-[8px] text-zinc-700 font-bold uppercase">all formats accepted / encrypted at rest</p>
+                                </>
+                            )}
                         </div>
 
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                            <button 
-                                onClick={() => setIsMobileFiltersOpen(true)}
-                                className="lg:hidden p-3 bg-zinc-900 border border-zinc-800 text-zinc-400 group hover:text-white transition-colors"
-                            >
-                                <Filter size={20} />
-                            </button>
-
-                            <div className="flex items-center gap-2 px-3 h-11 bg-zinc-900 border border-zinc-800 text-zinc-500 shrink-0">
-                                <ArrowUpDown size={14} />
-                                <select 
-                                    className="bg-transparent text-[10px] font-black uppercase outline-none cursor-pointer"
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value as any)}
-                                >
-                                    <option value="recent">Recent</option>
-                                    <option value="oldest">Oldest</option>
-                                    <option value="name">A-Z</option>
-                                </select>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                               <Label>Asset Category</Label>
+                               <select 
+                                 value={uploadCategory} 
+                                 onChange={(e) => setUploadCategory(e.target.value)}
+                                 required
+                                 className="w-full bg-[#111] border border-[#2e2e2e] text-xs font-black uppercase p-3 outline-none focus:border-[#F97316]"
+                               >
+                                  <option value="">Select Category</option>
+                                  <option value="product">Product</option>
+                                  <option value="process">Process</option>
+                                  <option value="meetings">Meetings</option>
+                                  <option value="research">Research</option>
+                                  <option value="legal_hr">Legal/HR</option>
+                                  <option value="task_uploads">Task Uploads</option>
+                                  {isAdmin && <option value="finance">Finance</option>}
+                               </select>
                             </div>
 
-                            <Button 
-                              onClick={() => setIsUploadModalOpen(true)}
-                              className="bg-[#F97316] hover:bg-[#EA580C] text-black font-black uppercase text-[10px] tracking-[0.2em] h-11 px-6 rounded-sm w-full md:w-auto"
-                            >
-                                <Plus size={16} className="mr-2" /> Upload File
-                            </Button>
-                        </div>
-                    </div>
-
-                    {/* Documents Grid (Responsive Columns) */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 pb-20 md:pb-0">
-                        {isLoading ? (
-                            Array(6).fill(0).map((_, i) => <div key={i} className="h-48 bg-zinc-900/50 animate-pulse border border-zinc-900" />)
-                        ) : filteredDocs.map((doc) => (
-                           <Link 
-                             key={doc.id} 
-                             to={`/documents/${doc.id}`}
-                             className="group flex flex-col bg-[#1a1a1a] border border-zinc-900 hover:border-[#F97316]/50 transition-all overflow-hidden relative"
-                           >
-                              <div className="h-32 bg-[#0d0d0d] flex items-center justify-center border-b border-zinc-900 relative overflow-hidden">
-                                 <div className="absolute inset-0 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity pointer-events-none flex flex-wrap gap-2 p-2">
-                                    {Array(20).fill(0).map((_, i) => <FileIcon key={i} size={40} />)}
-                                 </div>
-                                 <div className="w-16 h-16 transform group-hover:scale-110 transition-transform duration-500">
-                                    {getFileIcon(doc.mime_type)}
-                                 </div>
-                              </div>
-                              <div className="p-5 space-y-3">
-                                 <div className="flex justify-between items-start">
-                                    <div className="space-y-1 min-w-0">
-                                       <h4 className="text-[11px] font-black uppercase text-white truncate tracking-tight">{doc.auto_name}</h4>
-                                       <div className="flex items-center gap-2 text-[9px] font-bold text-zinc-600 uppercase italic">
-                                          <span>{doc.category.replace('_', ' ')}</span>
-                                          <span className="opacity-20 text-[6px]">●</span>
-                                          <span>v{doc.version_number}</span>
-                                       </div>
-                                    </div>
-                                    <Badge variant="outline" className="bg-zinc-900 border-zinc-800 text-[8px] h-5 rounded-none shrink-0 px-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
-                                       {doc.mime_type.split('/')[1]?.toUpperCase() || 'FILE'}
+                            <div className="space-y-2">
+                               <Label>Project Meta-Tags</Label>
+                               <div className="relative">
+                                  <TagIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" size={14} />
+                                  <Input 
+                                    placeholder="Enter + Return..."
+                                    value={tagInput}
+                                    onChange={(e) => setTagInput(e.target.value)}
+                                    onKeyDown={handleAddTag}
+                                    className="pl-10 h-11 rounded-none bg-[#111] border-[#2e2e2e] focus-visible:border-[#F97316]"
+                                  />
+                               </div>
+                               <div className="flex flex-wrap gap-2 mt-2">
+                                  {uploadTags.map(tag => (
+                                    <Badge key={tag} className="bg-zinc-800 text-zinc-300 text-[10px] h-6 rounded-none flex items-center gap-1">
+                                      {tag}
+                                      <X size={10} className="cursor-pointer" onClick={() => setUploadTags(uploadTags.filter(t => t !== tag))} />
                                     </Badge>
-                                 </div>
-                                 
-                                 <div className="flex flex-wrap gap-1">
-                                    {doc.tags.slice(0, 3).map(tag => (
-                                       <span key={tag} className="text-[8px] font-black uppercase text-[#F97316] bg-[#F97316]/5 px-1.5 border border-[#F97316]/10">#{tag}</span>
-                                    ))}
-                                 </div>
-
-                                 <div className="pt-2 border-t border-zinc-900 flex justify-between items-center">
-                                    <div className="flex items-center gap-2">
-                                       <div className="w-5 h-5 rounded-full border border-zinc-800 overflow-hidden shrink-0">
-                                          <img src={doc.uploaded_by.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${doc.uploaded_by.name}`} alt={doc.uploaded_by.name} className="w-full h-full object-cover" />
-                                       </div>
-                                       <span className="text-[9px] font-bold text-zinc-500 uppercase truncate max-w-[80px]">{doc.uploaded_by.name}</span>
-                                    </div>
-                                    <span className="text-[8px] font-bold text-zinc-700 italic">{safeFormatDistance(doc.created_at)} ago</span>
-                                 </div>
-                              </div>
-                           </Link>
-                        ))}
-                    </div>
-
-                    {filteredDocs.length === 0 && (
-                        <div className="p-32 text-center border-2 border-dashed border-zinc-900 rounded-none flex flex-col items-center gap-4 opacity-10">
-                           <FileText size={48} />
-                           <h3 className="text-xl font-black uppercase italic tracking-tighter">No Files Found</h3>
+                                  ))}
+                               </div>
+                            </div>
                         </div>
-                    )}
-                </div>
 
-            </div>
-
-             {/* Upload Modal (Friendly Labels) */}
-             <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
-                <DialogContent className="bg-[#111] border-[#2e2e2e] text-white rounded-none max-w-sm">
-                   <DialogHeader>
-                      <DialogTitle className="text-xs font-black uppercase tracking-[0.2em] text-[#F97316]">Upload File</DialogTitle>
-                      <DialogDescription className="text-zinc-500 text-[10px] uppercase font-bold italic">Upload a file to the shared hub</DialogDescription>
-                   </DialogHeader>
-                   <div className="space-y-6 pt-4">
-                      <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase text-zinc-400">Select File</Label>
-                         <div className="group relative h-24 border-2 border-dashed border-zinc-800 hover:border-[#F97316]/50 flex flex-col items-center justify-center gap-2 transition-all cursor-pointer overflow-hidden">
-                            <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setUploadFile(e.target.files?.[0] || null)} />
-                            <Upload size={24} className={cn("text-zinc-700 group-hover:text-[#F97316] transition-colors", uploadFile && "text-green-500")} />
-                            <span className="text-[9px] font-black uppercase text-zinc-600 transition-colors group-hover:text-zinc-300">
-                               {uploadFile ? uploadFile.name : "Drag & Drop or Click to browse"}
-                            </span>
-                         </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase text-zinc-400">Category</Label>
-                         <select 
-                            className="w-full bg-[#0d0d0d] border border-zinc-800 p-3 text-[10px] font-bold uppercase tracking-widest text-zinc-300 outline-none focus:border-[#F97316]/30"
-                            value={uploadCategory}
-                            onChange={(e) => setUploadCategory(e.target.value)}
-                         >
-                            <option value="">Select Category</option>
-                            <option value="product">Product Docs</option>
-                            <option value="process">Process Manuals</option>
-                            <option value="finance">Finance</option>
-                            <option value="legal_hr">Legal & HR</option>
-                            <option value="technical">Technical Specs</option>
-                            <option value="task_uploads">Task Uploads</option>
-                         </select>
-                      </div>
-                   </div>
-                   <DialogFooter className="pt-6">
-                      <Button onClick={() => setIsUploadModalOpen(false)} variant="outline" className="h-10 text-[9px] font-black uppercase rounded-none border border-zinc-800 text-zinc-500 hover:bg-zinc-900">Cancel</Button>
-                      <Button disabled={!uploadFile || !uploadCategory} className="h-10 bg-[#F97316] hover:bg-[#EA580C] text-black text-[9px] font-black uppercase rounded-none px-6">Upload</Button>
-                   </DialogFooter>
+                        <DialogFooter className="pt-4">
+                            <Button 
+                              type="button" 
+                              variant="ghost" 
+                              onClick={() => setIsUploadModalOpen(false)}
+                              className="text-zinc-600 font-bold uppercase hover:bg-transparent"
+                            >
+                              Cancel
+                            </Button>
+                            <Button 
+                              type="submit" 
+                              disabled={uploadMutation.isPending}
+                              className="bg-[#F97316] hover:bg-[#F97316]/90 text-black rounded-none font-black uppercase px-8"
+                            >
+                              {uploadMutation.isPending ? "Transmitting..." : "Initialize Uplink"}
+                            </Button>
+                        </DialogFooter>
+                    </form>
                 </DialogContent>
-             </Dialog>
-          </main>
+            </Dialog>
+
+            {/* --- VERSIONING DIALOG --- */}
+            <Dialog open={isVersionDialogOpen} onOpenChange={setIsVersionDialogOpen}>
+                <DialogContent className="bg-[#161616] border-[#2e2e2e] text-zinc-300">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black uppercase tracking-tighter italic">Duplicate Registry Detected</DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-500 uppercase">IDENTIFIER MATCH FOUND. SELECT PROTOCOL:</DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex flex-col sm:flex-row gap-4 pt-4">
+                        <Button 
+                          onClick={() => {
+                            uploadMutation.mutate({ ...pendingUploadData });
+                            setIsVersionDialogOpen(false);
+                          }}
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-none font-black uppercase text-[9px] h-11"
+                        >
+                           Link as New Version
+                        </Button>
+                        <Button 
+                           onClick={() => {
+                             uploadMutation.mutate({ ...pendingUploadData, linkVersionId: null });
+                             setIsVersionDialogOpen(false);
+                           }}
+                           className="bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-white rounded-none font-black uppercase text-[9px] h-11"
+                        >
+                           Upload Independently
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

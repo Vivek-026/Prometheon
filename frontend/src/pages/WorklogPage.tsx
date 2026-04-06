@@ -6,8 +6,7 @@ import {
   User as UserIcon, 
   Loader2,
   FileText,
-  LayoutGrid,
-  Calendar
+  LayoutGrid
 } from 'lucide-react';
 import { format, addDays, subDays, startOfWeek, endOfWeek, addMonths, subMonths, addWeeks, subWeeks } from 'date-fns';
 import { useAuthStore } from '../store/useAuthStore';
@@ -20,7 +19,8 @@ import WorklogQuarterly from '../components/worklogs/WorklogQuarterly';
 import EvidenceTimeline from '../components/worklogs/EvidenceTimeline';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/Tabs';
 import { Button } from '../components/ui/Button';
-import type { DailyWorklog, WeeklyWorklog, MonthlyWorklog, QuarterlyWorklog } from '../types/worklogs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/Select';
+import type { DailyWorklog, WeeklyWorklog, MonthlyWorklog, QuarterlyWorklog, EvidenceEvent } from '../types/worklogs';
 
 type LogTab = 'daily' | 'weekly' | 'monthly' | 'quarterly';
 
@@ -29,6 +29,7 @@ const WorklogPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<LogTab>('daily');
   const [selectedUser, setSelectedUser] = useState<string>(user?.id || '');
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [taskTimelineId, setTaskTimelineId] = useState<string | null>(null);
 
   const isManager = user?.role === 'task_manager' || user?.role === 'admin';
 
@@ -44,7 +45,7 @@ const WorklogPage: React.FC = () => {
      if (activeTab === 'quarterly') {
         const year = currentDate.getFullYear();
         const quarter = Math.floor(currentDate.getMonth() / 3) + 1;
-        return `Q${quarter} ${year}`;
+        return `QUARTER_0${quarter} // YEAR_${year}`;
      }
      return '';
   }, [activeTab, currentDate]);
@@ -102,105 +103,138 @@ const WorklogPage: React.FC = () => {
   });
 
   const { data: quarterlyData, isLoading: isLoadingQuarterly } = useQuery<QuarterlyWorklog>({
-     queryKey: ['worklogs', 'quarterly', selectedUser, currentDate.getFullYear(), Math.floor(currentDate.getMonth() / 3) + 1],
+     queryKey: ['worklogs', 'quarterly', format(currentDate, 'yyyy'), Math.floor(currentDate.getMonth() / 3) + 1],
      queryFn: async () => {
-        const res = await api.get('/worklogs/quarterly', { params: { user_id: selectedUser, year: currentDate.getFullYear(), quarter: Math.floor(currentDate.getMonth() / 3) + 1 } });
+        const res = await api.get('/worklogs/quarterly', { params: { quarter: Math.floor(currentDate.getMonth() / 3) + 1, year: currentDate.getFullYear() } });
         return res.data;
      },
      enabled: activeTab === 'quarterly'
   });
 
-  const isLoading = isLoadingDaily || isLoadingWeekly || isLoadingMonthly || isLoadingQuarterly;
+  const { data: taskEvidence } = useQuery<EvidenceEvent[]>({
+     queryKey: ['tasks', taskTimelineId, 'evidence'],
+     queryFn: async () => {
+        const res = await api.get(`/tasks/${taskTimelineId}/evidence`);
+        return Array.isArray(res.data) ? res.data : (res.data?.events || []);
+     },
+     enabled: !!taskTimelineId
+  });
+
+  const exportMutation = useMutation({
+     mutationFn: (type: 'monthly' | 'quarterly') => api.get('/worklogs/export', { params: { type, period: format(currentDate, 'yyyy-MM') } }),
+     onSuccess: (res) => window.open(res.data.url, '_blank')
+  });
 
   return (
-    <div className="flex bg-[#111] min-h-screen">
-      <Sidebar />
+    <div className="flex bg-[#0a0a0a] min-h-screen font-mono text-zinc-300">
+        <Sidebar />
 
-      <main className="flex-1 md:ml-64 p-4 md:p-8 w-full max-w-[100vw] overflow-x-hidden">
-        
-        <header className="mb-10 flex flex-col md:flex-row gap-6 justify-between items-start md:items-center">
-           <div className="space-y-1">
-              <h1 className="text-3xl font-black uppercase tracking-tighter text-white">Worklogs</h1>
-              <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest italic">Viewing daily and historical performance data</p>
-           </div>
+        <main className="flex-1 ml-64 p-8 space-y-10 pb-32 relative">
+            
+            {/* Header / Nav */}
+            <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#2e2e2e] relative overflow-hidden">
+                <div className="flex flex-col gap-3 z-10 transition-all">
+                  <div className="flex items-center gap-3">
+                     <div className="w-2 h-2 bg-[#F97316]" />
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 italic">Central_Worklog_Audit_Hub</span>
+                  </div>
+                  <h1 className="text-4xl font-black uppercase text-white tracking-widest italic flex items-center gap-4">
+                     Temporal_Registry <LayoutGrid className="text-zinc-800" size={32} />
+                  </h1>
+                </div>
 
-           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-              {isManager && (
-                 <div className="flex items-center gap-3 bg-[#1a1a1a] border border-[#2e2e2e] p-2 pr-4 rounded-sm w-full sm:w-64">
-                    <div className="w-8 h-8 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center shrink-0">
-                       <UserIcon size={14} className="text-[#F97316]" />
-                    </div>
-                    <div className="flex flex-col min-w-0 flex-1">
-                       <span className="text-[8px] font-black uppercase text-zinc-500 italic leading-none mb-1">View For:</span>
-                       <select 
-                         className="bg-transparent text-xs font-bold text-zinc-300 outline-none truncate"
-                         value={selectedUser}
-                         onChange={(e) => setSelectedUser(e.target.value)}
-                       >
-                          <option value={user?.id}>Myself ({user?.name})</option>
-                          {teamMembers.map((m: any) => (
-                             <option key={m.id} value={m.id}>{m.name}</option>
-                          ))}
-                       </select>
-                    </div>
-                 </div>
-              )}
+                <div className="flex flex-col gap-4 z-10">
+                   {/* Person Selector */}
+                   {isManager && (
+                      <div className="flex items-center gap-2">
+                        <UserIcon size={14} className="text-zinc-600" />
+                        <Select value={selectedUser} onValueChange={setSelectedUser}>
+                           <SelectTrigger className="w-[200px] h-10 bg-[#111] border-[#2e2e2e] rounded-none text-[10px] font-black uppercase italic text-[#F97316]">
+                              <SelectValue placeholder="Target Operative_" />
+                           </SelectTrigger>
+                           <SelectContent className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none text-zinc-300 font-mono">
+                              {teamMembers.map(member => (
+                                 <SelectItem key={member.id} value={member.id} className="text-[10px] font-black uppercase italic focus:bg-[#F97316] focus:text-black hover:bg-[#F97316] hover:text-black">
+                                    {member.name} {member.id === user?.id ? '(SELF)' : ''}
+                                 </SelectItem>
+                              ))}
+                           </SelectContent>
+                        </Select>
+                      </div>
+                   )}
+                </div>
+            </header>
 
-              <div className="flex items-center bg-[#1a1a1a] border border-[#2e2e2e] p-2 rounded-sm w-full md:w-auto">
-                 <button onClick={handlePrev} className="p-2 hover:bg-zinc-800 text-zinc-500 hover:text-[#F97316] transition-all"><ChevronLeft size={16} /></button>
-                 <div className="px-4 text-[10px] font-black uppercase tracking-widest text-white border-x border-[#2e2e2e] flex items-center gap-2">
-                    <Calendar size={12} className="text-[#F97316]" />
-                    {dateLabel}
-                 </div>
-                 <button onClick={handleNext} className="p-2 hover:bg-zinc-800 text-zinc-500 hover:text-[#F97316] transition-all"><ChevronRight size={16} /></button>
-              </div>
-           </div>
-        </header>
+            {/* Tab Controls / Navigation Area */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 py-4">
+               <Tabs 
+                 value={activeTab} 
+                 onValueChange={(v) => setActiveTab(v as LogTab)}
+                 className="w-full md:w-auto"
+               >
+                  <TabsList className="bg-[#111] border border-zinc-900 rounded-none h-12 p-1 gap-1 flex">
+                     <TabsTrigger value="daily" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Daily_Protocol</TabsTrigger>
+                     <TabsTrigger value="weekly" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Weekly_Cycle</TabsTrigger>
+                     <TabsTrigger value="monthly" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Monthly_Audit</TabsTrigger>
+                     {isManager && <TabsTrigger value="quarterly" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Quarterly_Vel</TabsTrigger>}
+                  </TabsList>
+               </Tabs>
 
-        {/* Tab Selection */}
-        <div className="mb-8 overflow-x-auto pb-2">
-           <Tabs value={activeTab} className="w-full">
-              <TabsList className="bg-transparent h-auto p-0 gap-2 flex flex-nowrap">
-                 {[
-                   { id: 'daily', label: 'Daily' },
-                   { id: 'weekly', label: 'Weekly' },
-                   { id: 'monthly', label: 'Monthly' },
-                   { id: 'quarterly', label: 'Quarterly', hide: !isManager }
-                 ].filter(t => !t.hide).map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as LogTab)}
-                      className={cn(
-                        "flex items-center gap-2 px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all border shrink-0",
-                        activeTab === tab.id 
-                          ? "bg-[#F97316]/10 text-[#F97316] border-[#F97316]/30 shadow-[0_0_15px_rgba(249,115,22,0.1)]" 
-                          : "text-zinc-600 hover:text-zinc-300 border-[#2e2e2e] hover:border-zinc-700"
-                      )}
-                    >
-                       {tab.label}
-                    </button>
-                 ))}
-              </TabsList>
-           </Tabs>
-        </div>
+               {/* Period Navigation */}
+               <div className="flex items-center gap-4 bg-[#111] border border-zinc-900 p-1">
+                  <Button onClick={handlePrev} size="sm" variant="ghost" className="h-10 w-10 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-none"><ChevronLeft size={20} /></Button>
+                  <div className="flex flex-col items-center min-w-[220px]">
+                     <span className="text-[8px] font-black text-zinc-700 uppercase tracking-tighter italic">Currently Viewing_Period</span>
+                     <span className="text-xs font-black uppercase text-white italic tracking-[0.1em]">{dateLabel}</span>
+                  </div>
+                  <Button onClick={handleNext} size="sm" variant="ghost" className="h-10 w-10 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-none"><ChevronRight size={20} /></Button>
+               </div>
+            </div>
 
-        {/* Dynamic Sector Rendering */}
-        <div className="pb-20 md:pb-0">
-           {isLoading ? (
-              <div className="flex flex-col items-center justify-center p-32 space-y-6 opacity-20 italic">
-                 <Loader2 size={48} className="animate-spin text-[#F97316]" />
-                 <span className="text-xl font-black uppercase tracking-widest">Auditing System Records...</span>
-              </div>
-           ) : (
-              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                 {activeTab === 'daily' && dailyData && <WorklogDaily data={dailyData} />}
-                 {activeTab === 'weekly' && weeklyData && <WorklogWeekly data={weeklyData} />}
-                 {activeTab === 'monthly' && monthlyData && <WorklogMonthly data={monthlyData} onExport={() => {}} />}
-                 {activeTab === 'quarterly' && quarterlyData && <WorklogQuarterly data={quarterlyData} />}
-              </div>
-           )}
-        </div>
-      </main>
+            {/* Content Feed */}
+            <div className="min-h-[500px]">
+               {activeTab === 'daily' && (
+                  isLoadingDaily ? <div className="flex items-center justify-center p-32"><Loader2 className="animate-spin text-[#F97316]" size={48} /></div> :
+                  dailyData && <WorklogDaily data={dailyData} onTaskClick={setTaskTimelineId} />
+               )}
+
+               {activeTab === 'weekly' && (
+                  isLoadingWeekly ? <div className="flex items-center justify-center p-32"><Loader2 className="animate-spin text-[#F97316]" size={48} /></div> :
+                  weeklyData && <WorklogWeekly data={weeklyData} onTaskClick={setTaskTimelineId} />
+               )}
+
+               {activeTab === 'monthly' && (
+                  isLoadingMonthly ? <div className="flex items-center justify-center p-32"><Loader2 className="animate-spin text-[#F97316]" size={48} /></div> :
+                  monthlyData && <WorklogMonthly data={monthlyData} onExport={() => exportMutation.mutate('monthly')} />
+               )}
+
+               {activeTab === 'quarterly' && isManager && (
+                  isLoadingQuarterly ? <div className="flex items-center justify-center p-32"><Loader2 className="animate-spin text-[#F97316]" size={48} /></div> :
+                  quarterlyData && <WorklogQuarterly data={quarterlyData} />
+               )}
+
+               {/* Error State if null */}
+               {activeTab === 'daily' && !dailyData && !isLoadingDaily && (
+                  <div className="flex flex-col items-center justify-center p-32 opacity-20 grayscale grayscale-0 space-y-6">
+                     <FileText size={64} className="text-zinc-800" />
+                     <h2 className="text-2xl font-black uppercase tracking-[0.2em]">Temporal_Data_Missing</h2>
+                  </div>
+               )}
+            </div>
+
+            {/* Evidence Timeline Overlay */}
+            {taskTimelineId && (
+               <EvidenceTimeline 
+                  taskName={
+                     dailyData?.sections.in_progress.find(t => t.id === taskTimelineId)?.name || 
+                     weeklyData?.days.flatMap(d => d.tasks).find(t => t.id === taskTimelineId)?.name || 
+                     'Target_Transmission'
+                  }
+                  events={taskEvidence || []}
+                  onClose={() => setTaskTimelineId(null)}
+               />
+            )}
+        </main>
     </div>
   );
 };
