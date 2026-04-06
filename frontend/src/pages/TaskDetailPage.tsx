@@ -46,56 +46,6 @@ const ProgressEntryIcon = ({ type }: { type: ProgressEntry['entry_type'] }) => {
   }
 };
 
-// --- MOCK DATA FALLBACK ---
-const MOCK_TASK_DETAIL: Task = {
-  id: '1',
-  name: 'DATABASE ENCRYPTION AUDIT',
-  description: '# SECURITY PROTOCOL V4.2\n\nPerform a deep audit on all production databases to insure AES-256 compliance.\n\n### Requirements\n- Scan all schemas\n- Verify key rotation\n- Extract audit log signature',
-  status: 'in_progress',
-  priority: 'urgent',
-  tags: ['security', 'infrastructure', 'compliance'],
-  created_by: { id: 'admin1', name: 'Commander Alpha' },
-  original_deadline: '2026-04-10T18:00:00Z',
-  current_deadline: '2026-04-12T18:00:00Z',
-  carry_forward_count: 2,
-  flag_count: 1,
-  is_frozen: false,
-  assignees: [
-    { id: 'me', name: 'Alpha User', role: 'admin', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha', contribution_pct: 75 },
-    { id: 'u2', name: 'Bravo Coder', role: 'coder', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bravo', contribution_pct: 25 }
-  ],
-  task_brief: {
-    id: 'b1',
-    auto_name: 'ENCRYPTION_GUIDE.PDF',
-    s3_presigned_url: '#',
-    mime_type: 'application/pdf'
-  },
-  progress_entries: [
-    {
-      id: 'e1',
-      entry_type: 'text_note',
-      note: 'Initial scan complete for Sector 7. No unauthorized access nodes detected.',
-      uploaded_by: { id: 'me', name: 'Alpha User' },
-      created_at: '2026-04-01T10:00:00Z'
-    },
-    {
-      id: 'e2',
-      entry_type: 'code_snippet',
-      content: 'SELECT * FROM pg_stat_activity WHERE wait_event_type = \'Lock\';',
-      note: 'Monitoring for active locks during encryption process.',
-      uploaded_by: { id: 'u2', name: 'Bravo Coder' },
-      created_at: '2026-04-02T14:30:00Z'
-    }
-  ],
-  carry_forward_logs: [
-    { id: 'l1', carry_number: 1, from_deadline: '2026-04-10', to_deadline: '2026-04-11', reason: 'Upstream dependency lag', created_at: '2026-04-09T09:00:00Z' },
-    { id: 'l2', carry_number: 2, from_deadline: '2026-04-11', to_deadline: '2026-04-12', reason: 'Extended sector scan required', created_at: '2026-04-10T09:00:00Z' }
-  ],
-  linked_documents: [
-    { id: 'd1', auto_name: 'GLOBAL_ENCRYPTION_POLICY.MD', link_type: 'internal', mime_type: 'text/markdown' },
-    { id: 'd2', auto_name: 'AUDIT_LOG_TEMPLATE.XLSX', link_type: 'internal', mime_type: 'application/xlsx' }
-  ]
-};
 
 const TaskDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -108,12 +58,19 @@ const TaskDetailPage: React.FC = () => {
   const { data: task, isLoading, error } = useQuery<Task>({
     queryKey: ['task', id],
     queryFn: async () => {
-      try {
-        const res = await api.get(`/tasks/${id}`);
-        return res.data || MOCK_TASK_DETAIL;
-      } catch (e) {
-        return MOCK_TASK_DETAIL;
+      const res = await api.get(`/tasks/${id}`);
+      const data = res.data;
+      if (data.assignees) {
+        data.assignees = data.assignees.map((a: any) => ({
+          id: a.user?.id || a.id,
+          name: a.user?.name || a.name,
+          role: a.user?.role || a.role,
+          avatar_url: a.user?.avatar_url || a.avatar_url,
+          contribution_pct: a.contribution_pct,
+          assigned_at: a.assigned_at,
+        }));
       }
+      return data;
     }
   });
 

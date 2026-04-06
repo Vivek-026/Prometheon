@@ -34,21 +34,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { cn } from '../lib/utils';
 import type { HubDocument, UserSummary } from '../types/tasks';
 
-// --- MOCK DATA ---
-const MOCK_DOCS: HubDocument[] = [
-  { id: 'd1', auto_name: 'PRD-CORE-v1.2.PDF', original_filename: 'prd_v1.2.pdf', category: 'product', tags: ['core', 'v1'], upload_origin: 'direct_upload', uploaded_by: { id: 'u1', name: 'Commander Alpha' }, mime_type: 'application/pdf', file_size_bytes: 4500000, version_number: 1, is_current_version: true, created_at: '2026-04-01T10:00:00Z' },
-  { id: 'd2', auto_name: 'SOP-SECTOR-7.MD', original_filename: 'sop_s7.md', category: 'process', tags: ['security', 'sop'], upload_origin: 'direct_upload', uploaded_by: { id: 'u2', name: 'Bravo Operative' }, mime_type: 'text/markdown', file_size_bytes: 12000, version_number: 2, is_current_version: true, created_at: '2026-04-02T14:30:00Z' },
-  { id: 'd3', auto_name: 'Q3-REVENUE-PROJECTION.XLSX', original_filename: 'q3_rev.xlsx', category: 'finance', tags: ['projection', 'q3'], upload_origin: 'direct_upload', uploaded_by: { id: 'u1', name: 'Commander Alpha' }, mime_type: 'application/xlsx', file_size_bytes: 2500000, version_number: 1, is_current_version: true, created_at: '2026-04-03T09:15:00Z' },
-  { id: 'd4', auto_name: 'SCREENSHOT-TASK-88.PNG', original_filename: 'task88_bug.png', category: 'task_uploads', tags: ['bug', 'ui'], upload_origin: 'progress_file', uploaded_by: { id: 'u3', name: 'Charlie Coder' }, mime_type: 'image/png', file_size_bytes: 850000, version_number: 1, is_current_version: true, created_at: '2026-04-04T16:20:00Z' },
-  { id: 'd5', auto_name: 'LEGAL-COMPLIANCE-DOC.PDF', original_filename: 'legal_compl.pdf', category: 'legal_hr', tags: ['legal', 'hr'], upload_origin: 'direct_upload', uploaded_by: { id: 'u2', name: 'Bravo Operative' }, mime_type: 'application/pdf', file_size_bytes: 3200000, version_number: 1, is_current_version: true, created_at: '2026-04-04T18:00:00Z' },
-];
-
-const MOCK_USERS: (UserSummary & { doc_count: number })[] = [
-  { id: 'u1', name: 'Commander Alpha', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha', doc_count: 12 },
-  { id: 'u2', name: 'Bravo Operative', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bravo', doc_count: 8 },
-  { id: 'u3', name: 'Charlie Coder', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie', doc_count: 4 },
-];
-
 // --- Helper for File Icons ---
 const getFileIcon = (mimeType: string) => {
   if (mimeType.includes('image')) return <FileImage className="text-pink-500" />;
@@ -96,30 +81,21 @@ const DocumentHub: React.FC = () => {
     const { data: documents, isLoading } = useQuery<HubDocument[]>({
         queryKey: ['documents', categoryFilter, search, selectedUser, sortBy],
         queryFn: async () => {
-            try {
-                const params: any = {};
-                if (categoryFilter !== 'all') params.category = categoryFilter;
-                if (search) params.search = search;
-                if (selectedUser) params.user_id = selectedUser;
-                if (sortBy) params.sort = sortBy;
-
-                const res = await api.get('/documents', { params });
-                return Array.isArray(res.data) ? res.data : MOCK_DOCS;
-            } catch (e) {
-                return MOCK_DOCS;
-            }
+            const params: any = {};
+            if (categoryFilter !== 'all') params.category = categoryFilter;
+            if (search) params.search = search;
+            if (selectedUser) params.user_id = selectedUser;
+            if (sortBy) params.sort = sortBy;
+            const res = await api.get('/documents', { params });
+            return Array.isArray(res.data) ? res.data : [];
         }
     });
 
     const { data: teamMembers } = useQuery({
         queryKey: ['users'],
         queryFn: async () => {
-           try {
-             const res = await api.get('/users');
-             return Array.isArray(res.data) ? res.data : MOCK_USERS;
-           } catch(e) {
-             return MOCK_USERS;
-           }
+            const res = await api.get('/users');
+            return Array.isArray(res.data) ? res.data : [];
         }
     });
 

@@ -33,29 +33,6 @@ import { Label } from '../components/ui/Label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '../components/ui/Dialog';
 import { cn } from '../lib/utils';
 
-// --- MOCK DATA FALLBACK ---
-const MOCK_DOC_DETAIL = {
-  id: 'd1',
-  auto_name: 'PRD-CORE-v1.2.PDF',
-  original_filename: 'prd_v1.2.pdf',
-  category: 'product',
-  tags: ['core', 'v1', 'draft'],
-  upload_origin: 'Source: Task #42 – Progress File by Commander Alpha',
-  uploaded_by: { id: 'u1', name: 'Commander Alpha', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha' },
-  mime_type: 'application/pdf',
-  file_size_bytes: 4500000,
-  version_number: 1,
-  is_current_version: true,
-  version_history: [
-    { id: 'd0', auto_name: 'PRD-CORE-v1.0.PDF', version_number: 1, is_current_version: false, created_at: '2026-03-25T10:00:00Z', uploaded_by: { name: 'Commander Alpha' } },
-    { id: 'd1', auto_name: 'PRD-CORE-v1.2.PDF', version_number: 2, is_current_version: true, created_at: '2026-04-01T10:00:00Z', uploaded_by: { name: 'Commander Alpha' } },
-  ],
-  linked_tasks: [
-    { id: 't42', name: 'CORE SECURE PROTOCOL V4', status: 'in_progress' }
-  ],
-  created_at: '2026-04-01T10:00:00Z'
-};
-
 // --- SAFETY WRAPPERS ---
 const safeFormatDate = (dateStr: string | undefined | null, formatStr: string) => {
     if (!dateStr) return 'N/A';
@@ -87,25 +64,16 @@ const DocumentDetailPage: React.FC = () => {
     const { data: document, isLoading } = useQuery({
         queryKey: ['document', id],
         queryFn: async () => {
-            try {
-                const res = await api.get(`/documents/${id}`);
-                return res.data || MOCK_DOC_DETAIL;
-            } catch (e) {
-                return MOCK_DOC_DETAIL;
-            }
+            const res = await api.get(`/documents/${id}`);
+            return res.data;
         }
     });
 
     const { data: presignedData } = useQuery({
         queryKey: ['presigned-url', id],
         queryFn: async () => {
-            try {
-                const res = await api.get(`/documents/${id}/presigned-url`);
-                return res.data;
-            } catch (e) {
-                // If fails and we are using mock, we need a placeholder
-                return { url: '#', expires_in: 900 };
-            }
+            const res = await api.get(`/documents/${id}/presigned-url`);
+            return res.data;
         },
         enabled: !!id
     });

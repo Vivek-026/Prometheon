@@ -28,15 +28,8 @@ import { Input } from '../../components/ui/Input';
 import { Label } from '../../components/ui/Label';
 import { Textarea } from '../../components/ui/Textarea';
 import { cn } from '../../lib/utils';
-import type { FrozenTask, UnresolvedFlag, FlagFrequencyPattern, EscalationSummary } from '../../types/escalations';
+import type { FrozenTask, UnresolvedFlag, FlagFrequencyPattern } from '../../types/escalations';
 import type { UserSummary } from '../../types/tasks';
-
-// --- MOCK DATA ---
-const MOCK_SUMMARY: EscalationSummary = {
-  total_frozen: 4,
-  total_unresolved_flags: 7,
-  total_pattern_alerts: 3
-};
 
 const EscalationsDashboard: React.FC = () => {
   const queryClient = useQueryClient();

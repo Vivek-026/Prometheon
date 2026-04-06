@@ -2,36 +2,10 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import api from '../../api/api';
-import type { Task, Flag, TaskSummary } from '../../types/tasks';
+import type { Task, TaskSummary } from '../../types/tasks';
 import { cn } from '../../lib/utils';
 import { AlertCircle, ArrowRight, Clock, ShieldAlert } from 'lucide-react';
 
-const MOCO_TASKS: Task[] = [
-  { 
-    id: '1', name: 'DATABASE ENCRYPTION AUDIT', status: 'pending', priority: 'urgent', carry_forward_count: 0, flag_count: 0, is_frozen: false,
-    tags: ['security'], created_by: 'u1', original_deadline: '2026-04-10', current_deadline: '2026-04-10', created_at: '2026-04-01', updated_at: '2026-04-01', 
-    assignees: [{ id: 'me', name: 'Alpha User', role: 'admin' }]
-  },
-  { 
-    id: '2', name: 'CORE API REFACTOR', status: 'in_progress', priority: 'high', carry_forward_count: 2, flag_count: 0, is_frozen: false,
-    tags: ['refactor'], created_by: 'u1', original_deadline: '2026-04-10', current_deadline: '2026-04-12', created_at: '2026-04-01', updated_at: '2026-04-01',
-    assignees: [{ id: 'me', name: 'Alpha User', role: 'admin' }]
-  },
-  { 
-    id: '3', name: 'ZUSTAND STORE POLISH', status: 'in_review', priority: 'medium', carry_forward_count: 0, flag_count: 0, is_frozen: false,
-    tags: ['frontend'], created_by: 'u1', original_deadline: '2026-04-08', current_deadline: '2026-04-08', created_at: '2026-04-01', updated_at: '2026-04-01',
-    assignees: [{ id: 'me', name: 'Alpha User', role: 'admin' }]
-  },
-  { 
-    id: '4', name: 'LEGACY REPO MIGRATION', status: 'pending', priority: 'high', carry_forward_count: 4, flag_count: 1, is_frozen: true,
-    tags: ['migration'], created_by: 'u1', original_deadline: '2026-04-01', current_deadline: '2026-04-01', created_at: '2026-04-01', updated_at: '2026-04-01',
-    assignees: [{ id: 'me', name: 'Alpha User', role: 'admin' }]
-  },
-];
-
-const MOCK_FLAGS: Flag[] = [
-  { id: 'f1', task_id: '4', task_title: 'LEGACY REPO MIGRATION', reporter_id: 'c1', reporter_name: 'Coder 1', status: 'pending_review', message: 'Unknown dependency in bundle', created_at: '2026-04-05' }
-];
 
 const Badge = ({ children, variant = 'default', className }: { children: React.ReactNode, variant?: 'default' | 'urgent' | 'warning' | 'success' | 'info', className?: string }) => {
   const variants = {
@@ -58,18 +32,14 @@ export const ActiveTasksWidget = () => {
   const { data: tasks, isLoading } = useQuery<Task[]>({
     queryKey: ['active-tasks'],
     queryFn: async () => {
-      try {
-        const res = await api.get('/tasks?assignee=me&status=pending,in_progress,in_review');
-        return Array.isArray(res.data) ? res.data : MOCO_TASKS;
-      } catch (e) {
-        return MOCO_TASKS;
-      }
+      const res = await api.get('/tasks?assignee=me&status=pending,in_progress,in_review');
+      return Array.isArray(res.data) ? res.data : [];
     },
   });
 
   if (isLoading) return <Skeleton className="h-48 w-full" />;
 
-  const allTasks = Array.isArray(tasks) ? tasks : MOCO_TASKS;
+  const allTasks = Array.isArray(tasks) ? tasks : [];
   const topTasks = allTasks.slice(0, 3);
 
   return (
@@ -109,13 +79,9 @@ export const CarryForwardWidget = () => {
   const { data: tasks, isLoading } = useQuery<Task[]>({
     queryKey: ['carry-forward-tasks'],
     queryFn: async () => {
-        try {
-            const res = await api.get('/tasks');
-            const data = Array.isArray(res.data) ? res.data : MOCO_TASKS;
-            return data.filter((t: Task) => t.carry_forward_count > 0 && t.status !== 'completed');
-        } catch (e) {
-            return MOCO_TASKS.filter((t: Task) => t.carry_forward_count > 0 && t.status !== 'completed');
-        }
+      const res = await api.get('/tasks');
+      const data = Array.isArray(res.data) ? res.data : [];
+      return data.filter((t: Task) => t.carry_forward_count > 0 && t.status !== 'completed');
     },
   });
 
@@ -151,15 +117,11 @@ export const CarryForwardWidget = () => {
 // --- CODERS ONLY ---
 
 export const MyFlagsWidget = () => {
-    const { data: flags, isLoading } = useQuery<Flag[]>({
+    const { data: flags, isLoading } = useQuery<any[]>({
       queryKey: ['my-flags'],
-       queryFn: async () => {
-        try {
-            const res = await api.get('/flags');
-            return Array.isArray(res.data) ? res.data : MOCK_FLAGS;
-        } catch (e) {
-            return MOCK_FLAGS;
-        }
+      queryFn: async () => {
+        const res = await api.get('/flags');
+        return Array.isArray(res.data) ? res.data : [];
       },
     });
   
@@ -192,23 +154,14 @@ export const TeamSummaryWidget = () => {
   const { data: summary, isLoading } = useQuery<TaskSummary>({
     queryKey: ['team-summary'],
     queryFn: async () => {
-      try {
-        const res = await api.get('/tasks');
-        const tasks = Array.isArray(res.data) ? res.data : MOCO_TASKS;
-        return {
-          activeCount: tasks.filter(t => t.status !== 'completed').length,
-          inReviewCount: tasks.filter(t => t.status === 'in_review').length,
-          overdueCount: tasks.filter(t => new Date(t.current_deadline) < new Date() && t.status !== 'completed').length,
-          totalCount: tasks.length
-        };
-      } catch (e) {
-        return {
-            activeCount: MOCO_TASKS.filter(t => t.status !== 'completed').length,
-            inReviewCount: MOCO_TASKS.filter(t => t.status === 'in_review').length,
-            overdueCount: MOCO_TASKS.filter(t => new Date(t.current_deadline) < new Date() && t.status !== 'completed').length,
-            totalCount: MOCO_TASKS.length
-          };
-      }
+      const res = await api.get('/tasks');
+      const tasks: Task[] = Array.isArray(res.data) ? res.data : [];
+      return {
+        activeCount: tasks.filter(t => t.status !== 'completed').length,
+        inReviewCount: tasks.filter(t => t.status === 'in_review').length,
+        overdueCount: tasks.filter(t => new Date(t.current_deadline) < new Date() && t.status !== 'completed').length,
+        totalCount: tasks.length
+      };
     },
   });
 
@@ -241,16 +194,12 @@ export const TeamSummaryWidget = () => {
 };
 
 export const FlaggedTasksWidget = () => {
-  const { data: flags, isLoading } = useQuery<Flag[]>({
+  const { data: flags, isLoading } = useQuery<any[]>({
     queryKey: ['admin-flags'],
     queryFn: async () => {
-        try {
-            const res = await api.get('/flags');
-            const data = Array.isArray(res.data) ? res.data : MOCK_FLAGS;
-            return data.filter((f: Flag) => f.status === 'pending_review');
-        } catch (e) {
-            return MOCK_FLAGS.filter((f: Flag) => f.status === 'pending_review');
-        }
+      const res = await api.get('/flags');
+      const data = Array.isArray(res.data) ? res.data : [];
+      return data.filter((f: any) => f.status === 'pending_review');
     },
   });
 
@@ -288,13 +237,9 @@ export const EscalatedTasksWidget = () => {
   const { data: escalated, isLoading } = useQuery<Task[]>({
     queryKey: ['escalated-tasks'],
     queryFn: async () => {
-        try {
-          const res = await api.get('/tasks');
-          const data = Array.isArray(res.data) ? res.data : MOCO_TASKS;
-          return data.filter((t: Task) => (t.carry_forward_count >= 3 || (t.flag_count > 0 && !t.is_frozen)));
-        } catch (e) {
-            return MOCO_TASKS.filter((t: Task) => (t.carry_forward_count >= 3 || (t.flag_count > 0 && !t.is_frozen)));
-        }
+      const res = await api.get('/tasks');
+      const data = Array.isArray(res.data) ? res.data : [];
+      return data.filter((t: Task) => (t.carry_forward_count >= 3 || (t.flag_count > 0 && !t.is_frozen)));
     },
   });
 

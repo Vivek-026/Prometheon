@@ -20,32 +20,6 @@ import {
   Tag as TagIcon
 } from 'lucide-react';
 
-// --- MOCK DATA FALLBACK ---
-const MOCK_TASKS_LIST: Task[] = [
-  { 
-    id: '1', name: 'DATABASE ENCRYPTION AUDIT', status: 'pending', priority: 'urgent', carry_forward_count: 0, flag_count: 0, is_frozen: false,
-    tags: ['security', 'infrastructure'], created_by: 'u1', original_deadline: '2026-04-10', current_deadline: '2026-04-10', created_at: '2026-04-01', updated_at: '2026-04-01', 
-    assignees: [{ id: 'me', name: 'Alpha User', role: 'admin', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha' }]
-  },
-  { 
-    id: '2', name: 'CORE API REFACTOR', status: 'in_progress', priority: 'high', carry_forward_count: 2, flag_count: 1, is_frozen: false,
-    tags: ['refactor', 'v2'], created_by: 'u1', original_deadline: '2026-04-10', current_deadline: '2026-04-12', created_at: '2026-04-01', updated_at: '2026-04-01',
-    assignees: [
-      { id: 'me', name: 'Alpha User', role: 'admin', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha' },
-      { id: 'u2', name: 'Bravo Coder', role: 'coder', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bravo' }
-    ]
-  },
-  { 
-    id: '3', name: 'ZUSTAND STORE POLISH', status: 'in_review', priority: 'medium', carry_forward_count: 0, flag_count: 0, is_frozen: false,
-    tags: ['frontend', 'ui'], created_by: 'u1', original_deadline: '2026-04-08', current_deadline: '2026-04-08', created_at: '2026-04-01', updated_at: '2026-04-01',
-    assignees: [{ id: 'u2', name: 'Bravo Coder', role: 'coder', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Bravo' }]
-  },
-  { 
-    id: '4', name: 'LEGACY REPO MIGRATION', status: 'flagged', priority: 'urgent', carry_forward_count: 4, flag_count: 3, is_frozen: true,
-    tags: ['migration', 'legacy'], created_by: 'u1', original_deadline: '2026-04-01', current_deadline: '2026-04-01', created_at: '2026-04-01', updated_at: '2026-04-01',
-    assignees: [{ id: 'me', name: 'Alpha User', role: 'admin', avatar_url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Alpha' }]
-  },
-];
 
 const TaskBadge = ({ children, variant = 'default' }: { children: React.ReactNode, variant?: any }) => {
   const variants: Record<string, string> = {
@@ -86,17 +60,12 @@ const TaskListPage: React.FC = () => {
     const { data: tasks, isLoading } = useQuery<Task[]>({
         queryKey: ['tasks', statusFilter, priorityFilter, search],
         queryFn: async () => {
-          try {
             const params: any = {};
             if (statusFilter !== 'all') params.status = statusFilter;
             if (priorityFilter !== 'all') params.priority = priorityFilter;
             if (search) params.search = search;
-            
             const res = await api.get('/tasks', { params });
-            return Array.isArray(res.data) ? res.data : MOCK_TASKS_LIST;
-          } catch (e) {
-            return MOCK_TASKS_LIST;
-          }
+            return Array.isArray(res.data) ? res.data : [];
         },
     });
 
