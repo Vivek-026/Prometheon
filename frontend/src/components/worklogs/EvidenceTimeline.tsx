@@ -34,12 +34,12 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({ events, onClose, ta
   };
 
   return (
-    <div className="absolute top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#0d0d0d] border-l border-[#2e2e2e] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] z-50 flex flex-col p-0 font-mono animate-in slide-in-from-right duration-300">
+    <div className="absolute top-0 right-0 bottom-0 w-full md:w-[400px] bg-[#0d0d0d] border-l border-[#2e2e2e] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] z-50 flex flex-col p-0 animate-in slide-in-from-right duration-300">
        {/* Header */}
        <header className="p-6 border-b border-[#2e2e2e] bg-[#111] flex items-center justify-between">
           <div className="flex flex-col gap-1 overflow-hidden pr-4">
-             <span className="text-[10px] font-black uppercase text-[#F97316] italic tracking-widest">Evidence_Protocol_Timeline</span>
-             <h2 className="text-xs font-black uppercase text-white truncate italic tracking-tighter">{taskName}</h2>
+             <span className="text-xs font-medium text-[#F97316] italic">Evidence Timeline</span>
+             <h2 className="text-xs font-medium text-white truncate italic">{taskName}</h2>
           </div>
           <button onClick={onClose} className="text-zinc-600 hover:text-white transition-colors p-2 bg-[#0d0d0d] border border-zinc-900"><X size={16} /></button>
        </header>
@@ -60,10 +60,10 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({ events, onClose, ta
                    <div className="flex-1 space-y-3 pb-8">
                       <div className="flex items-center justify-between gap-4">
                          <div className="flex items-center gap-2">
-                            <span className="text-[9px] font-black uppercase text-white tracking-widest">{event.uploader.name}</span>
-                            <span className="text-[8px] font-bold text-zinc-700 uppercase italic">{event.type}</span>
+                            <span className="text-xs font-medium text-white">{event.uploader.name}</span>
+                            <span className="text-xs font-bold text-zinc-700 italic">{event.type}</span>
                          </div>
-                         <span className="text-[8px] font-black text-zinc-700 uppercase italic">{format(new Date(event.timestamp), 'HH:mm | MM/dd')}</span>
+                         <span className="text-xs font-medium text-zinc-700 italic">{format(new Date(event.timestamp), 'HH:mm | MM/dd')}</span>
                       </div>
 
                       <div className={cn(
@@ -84,8 +84,8 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({ events, onClose, ta
                          )}
 
                          <p className={cn(
-                           "text-[10px] leading-relaxed text-zinc-400 font-sans group-hover:text-zinc-200 transition-colors",
-                           event.type === 'code' && "font-mono text-indigo-300 text-[9px]"
+                           "text-xs leading-relaxed text-zinc-400 font-sans group-hover:text-zinc-200 transition-colors",
+                           event.type === 'code' && "font-mono text-indigo-300 text-xs"
                          )}>
                             {event.content_preview.length > 200 ? `${event.content_preview.slice(0, 200)}...` : event.content_preview}
                          </p>
@@ -93,7 +93,7 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({ events, onClose, ta
                          {event.type === 'link' && (
                             <div className="mt-2 flex items-center gap-2 py-1 px-2 border border-zinc-950 bg-[#0a0a0a] w-fit">
                                <LinkIcon size={10} className="text-zinc-700" />
-                               <span className="text-[8px] text-zinc-600 font-black italic cursor-pointer truncate max-w-[200px] hover:text-[#6366f1] transition-color">{event.content_preview}</span>
+                               <span className="text-xs text-zinc-600 font-semibold cursor-pointer truncate max-w-[200px] hover:text-[#6366f1] transition-color">{event.content_preview}</span>
                             </div>
                          )}
                       </div>
@@ -104,7 +104,7 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({ events, onClose, ta
              {events.length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center opacity-20 italic text-center py-32 space-y-4">
                    <Clock size={48} className="text-zinc-800" />
-                   <span className="text-[9px] font-black uppercase tracking-[0.2em]">Null_Transmission_Registry</span>
+                   <span className="text-xs font-medium">No evidence recorded</span>
                 </div>
              )}
           </div>
@@ -112,7 +112,7 @@ const EvidenceTimeline: React.FC<EvidenceTimelineProps> = ({ events, onClose, ta
 
        {/* Footer / Context */}
        <footer className="p-4 bg-[#0a0a0a] border-t border-[#2e2e2e] text-center">
-          <span className="text-[8px] font-bold text-zinc-800 uppercase italic tracking-widest leading-loose">ENCRYPTED_AUDIT_LOG // SECTOR_PROM_001<br/>END_OF_CYCLE_RECORDS</span>
+          <span className="text-xs font-bold text-zinc-800 italic leading-loose">End of timeline</span>
        </footer>
     </div>
   );

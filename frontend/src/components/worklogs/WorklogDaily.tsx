@@ -32,15 +32,15 @@ const WorklogDaily: React.FC<WorklogDailyProps> = ({ data, onTaskClick }) => {
       >
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase text-white truncate tracking-widest">{task.name}</span>
+              <span className="text-xs font-semibold text-white truncate">{task.name}</span>
               {task.tags?.slice(0,2).map(tag => (
-                 <span key={tag} className="text-[7px] font-bold text-zinc-600 uppercase border border-zinc-800 px-1 italic">{tag}</span>
+                 <span key={tag} className="text-[10px] font-normal text-zinc-600 border border-zinc-800 px-1">{tag}</span>
               ))}
            </div>
            
            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="text-[8px] h-4 border-zinc-800 uppercase font-black">{task.status}</Badge>
-              <span className="text-[8px] font-bold text-zinc-600 uppercase flex items-center gap-1">
+              <Badge variant="outline" className="text-[10px] h-4 border-zinc-800 font-medium">{task.status}</Badge>
+              <span className="text-[10px] font-normal text-zinc-600 flex items-center gap-1">
                  <Calendar size={10} /> {task.current_deadline}
               </span>
            </div>
@@ -50,7 +50,7 @@ const WorklogDaily: React.FC<WorklogDailyProps> = ({ data, onTaskClick }) => {
            {/* Carry Forward Badge */}
            {task.carry_forward_count > 0 && (
               <div className={cn(
-                "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[8px] font-black italic",
+                "flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium",
                 isFrozen ? "bg-red-500/10 text-red-500 border border-red-500/20" : "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"
               )}>
                  <Forward size={10} /> {isFrozen ? "FROZEN" : `CF×${task.carry_forward_count}`}
@@ -62,11 +62,11 @@ const WorklogDaily: React.FC<WorklogDailyProps> = ({ data, onTaskClick }) => {
               <div className="flex items-center gap-1.5 text-zinc-600">
                  <div className="flex items-center gap-0.5">
                     <ImageIcon size={10} />
-                    <span className="text-[8px] font-black">{(task.progress_entries?.filter(e => e.entry_type === 'screenshot' || e.entry_type === 'document')?.length || 0)}</span>
+                    <span className="text-[10px] font-medium">{(task.progress_entries?.filter(e => e.entry_type === 'screenshot' || e.entry_type === 'document')?.length || 0)}</span>
                  </div>
                  <div className="flex items-center gap-0.5">
                     <Paperclip size={10} />
-                    <span className="text-[8px] font-black">{(task.progress_entries?.length || 0)}</span>
+                    <span className="text-[10px] font-medium">{(task.progress_entries?.length || 0)}</span>
                  </div>
               </div>
            )}
@@ -76,11 +76,11 @@ const WorklogDaily: React.FC<WorklogDailyProps> = ({ data, onTaskClick }) => {
   };
 
   const sections = [
-    { title: 'Overdue Protocol', key: 'overdue', icon: <AlertCircle className="text-red-500" />, color: 'text-red-500' },
-    { title: 'Due Cycles_Today', key: 'due_today', icon: <Zap className="text-yellow-500" />, color: 'text-yellow-500' },
-    { title: 'Active Transmissions', key: 'in_progress', icon: <Clock className="text-[#F97316]" />, color: 'text-[#F97316]' },
-    { title: 'Completed Archives', key: 'completed_today', icon: <CheckCircle2 className="text-green-500" />, color: 'text-green-500' },
-    { title: 'Carry Forward Pipeline', key: 'carry_forwarded_today', icon: <Forward className="text-zinc-600" />, color: 'text-zinc-600' },
+    { title: 'Overdue', key: 'overdue', icon: <AlertCircle className="text-red-500" />, color: 'text-red-500' },
+    { title: 'Due Today', key: 'due_today', icon: <Zap className="text-yellow-500" />, color: 'text-yellow-500' },
+    { title: 'Active Tasks', key: 'in_progress', icon: <Clock className="text-[#F97316]" />, color: 'text-[#F97316]' },
+    { title: 'Completed Today', key: 'completed_today', icon: <CheckCircle2 className="text-green-500" />, color: 'text-green-500' },
+    { title: 'Pushed Forward', key: 'carry_forwarded_today', icon: <Forward className="text-zinc-600" />, color: 'text-zinc-600' },
   ] as const;
 
   return (
@@ -94,14 +94,14 @@ const WorklogDaily: React.FC<WorklogDailyProps> = ({ data, onTaskClick }) => {
                <div key={section.key} className="space-y-3">
                   <div className="flex items-center gap-3 px-2">
                      {section.icon}
-                     <h3 className={cn("text-xs font-black uppercase tracking-[0.2em] italic", section.color)}>{section.title}</h3>
-                     <Badge className="bg-zinc-900 border-zinc-800 text-zinc-500 text-[9px] h-5 rounded-none font-black italic">{tasks.length}</Badge>
+                     <h3 className={cn("text-xs font-semibold", section.color)}>{section.title}</h3>
+                     <Badge className="bg-zinc-900 border-zinc-800 text-zinc-500 text-xs h-5 rounded-none font-medium">{tasks.length}</Badge>
                   </div>
                   
                   <div className="flex flex-col gap-1">
                      {tasks.length === 0 ? (
                         <div className="p-8 border border-dashed border-zinc-900 flex flex-col items-center justify-center opacity-20 grayscale grayscale-0">
-                           <span className="text-[10px] font-black uppercase italic">Null_Stream_Data</span>
+                           <span className="text-xs font-normal">No tasks for this day</span>
                         </div>
                      ) : (
                         tasks.map(renderTask)

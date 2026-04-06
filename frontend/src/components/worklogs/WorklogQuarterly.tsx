@@ -36,11 +36,11 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
           {/* Completion Trend */}
           <Card className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none shadow-[0_0_20px_rgba(0,0,0,0.3)]">
              <CardHeader className="p-6 border-b border-[#2e2e2e] flex flex-row items-center justify-between">
-                <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-[#F97316] flex items-center gap-2">
-                   <Target size={16} /> Completion_Protocol_Trend
+                <CardTitle className="text-xs font-semibold text-[#F97316] flex items-center gap-2">
+                   <Target size={16} /> Completion Rate Over Time
                 </CardTitle>
-                <div className="flex items-center gap-2 px-2 py-0.5 bg-green-500/10 border border-green-500/20 text-green-500 text-[9px] font-black italic rounded-full">
-                   <TrendingUpIcon size={12} /> OPTIMAL_STATUS
+                <div className="flex items-center gap-2 px-2 py-0.5 bg-green-500/10 border border-green-500/20 text-green-500 text-xs font-medium rounded-full">
+                   <TrendingUpIcon size={12} /> Looking good
                 </div>
              </CardHeader>
              <CardContent className="p-6">
@@ -71,10 +71,10 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
           {/* Velocity Trend */}
           <Card className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none shadow-[0_0_20px_rgba(0,0,0,0.3)]">
              <CardHeader className="p-6 border-b border-[#2e2e2e] flex flex-row items-center justify-between">
-                <CardTitle className="text-xs font-black uppercase italic tracking-[0.2em] text-[#6366f1] flex items-center gap-2">
-                   <Activity size={16} /> Velocity_Execution_Registry
+                <CardTitle className="text-xs font-semibold text-[#6366f1] flex items-center gap-2">
+                   <Activity size={16} /> Tasks Completed Over Time
                 </CardTitle>
-                <Badge className="bg-[#111] text-zinc-600 border-zinc-800 text-[8px] h-5 rounded-none font-black italic">QUARTERLY_OUTPUT</Badge>
+                <Badge className="bg-[#111] text-zinc-600 border-zinc-800 text-[10px] h-5 rounded-none font-medium">This Quarter</Badge>
              </CardHeader>
              <CardContent className="p-6">
                 <div style={{ width: '100%', height: 300 }}>
@@ -98,8 +98,8 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
 
        {/* Top Personnel Quarterly Performance */}
        <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase tracking-[0.2em] italic text-zinc-500 flex items-center gap-3">
-             <Award size={14} className="text-[#F97316]" /> HighPersonnel_Efficiency_Audit
+          <h3 className="text-xs font-semibold text-zinc-500 flex items-center gap-3">
+             <Award size={14} className="text-[#F97316]" /> Team Performance
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
              {(data?.per_person || []).map((p) => (
@@ -109,18 +109,18 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
                    </div>
                    
                    <div className="flex flex-col gap-1 z-10">
-                      <span className="text-[10px] font-black uppercase text-white truncate tracking-widest">{p.user.name}</span>
-                      <span className="text-[7px] text-zinc-700 font-bold uppercase italic tracking-tighter">OPERATIVE_ID: {p.user.id.slice(0,8)}</span>
+                      <span className="text-xs font-semibold text-white truncate">{p.user.name}</span>
+                      <span className="text-[10px] text-zinc-700 font-normal">ID: {p.user.id.slice(0,8)}</span>
                    </div>
 
                    <div className="grid grid-cols-2 gap-4 z-10 pt-2 border-t border-zinc-900">
                       <div className="flex flex-col gap-1">
-                         <span className="text-[8px] font-black text-zinc-600 uppercase">PROTOCOL_EX_TOTAL</span>
-                         <span className="text-sm font-black text-zinc-400 italic font-mono">{p.total}</span>
+                         <span className="text-[10px] font-medium text-zinc-600">Total Tasks</span>
+                         <span className="text-sm font-medium text-zinc-400 font-mono">{p.total}</span>
                       </div>
                       <div className="flex flex-col gap-1">
-                         <span className="text-[8px] font-black text-zinc-600 uppercase">COMPLETION_RATE</span>
-                         <span className="text-sm font-black text-green-500 italic font-mono">{Math.round((p.completed / Math.max(1, p.total)) * 100)}%</span>
+                         <span className="text-[10px] font-medium text-zinc-600">Completion Rate</span>
+                         <span className="text-sm font-medium text-green-500 font-mono">{Math.round((p.completed / Math.max(1, p.total)) * 100)}%</span>
                       </div>
                    </div>
 
@@ -133,24 +133,24 @@ const WorklogQuarterly: React.FC<WorklogQuarterlyProps> = ({ data }) => {
        </div>
 
        {/* Detailed Auditor Table */}
-       <div className="bg-[#0b0b0b] border border-[#2e2e2e] overflow-hidden rounded-none">
-          <table className="w-full text-[10px] uppercase font-bold italic tracking-tighter">
+       <div className="bg-[#0b0b0b] border border-[#2e2e2e] overflow-hidden rounded-none table-scroll-wrapper">
+          <table className="w-full text-xs font-normal">
              <thead className="bg-[#111] border-b border-[#2e2e2e] text-zinc-600">
                 <tr>
-                   <th className="p-4 text-left">Target Operative</th>
-                   <th className="p-4 text-center">Quarterly_Protocol</th>
-                   <th className="p-4 text-center">Completed_Cycle</th>
-                   <th className="p-4 text-center">Carry_Forward_Metric</th>
-                   <th className="p-4 text-right">Access_Profile</th>
+                   <th className="p-4 text-left font-medium">Name</th>
+                   <th className="p-4 text-center font-medium">Total</th>
+                   <th className="p-4 text-center font-medium">Completed</th>
+                   <th className="p-4 text-center font-medium">Pushed Forward</th>
+                   <th className="p-4 text-right font-medium">Details</th>
                 </tr>
              </thead>
              <tbody className="divide-y divide-zinc-900">
                 {(data?.per_person || []).map(p => (
                    <tr key={p.user.id} className="hover:bg-zinc-900 transition-colors group">
-                      <td className="p-4 font-black tracking-tight text-white">{p.user.name}</td>
-                      <td className="p-4 text-center font-black text-zinc-500 italic">{p.total} UNITS</td>
+                      <td className="p-4 font-semibold text-white">{p.user.name}</td>
+                      <td className="p-4 text-center font-normal text-zinc-500">{p.total} UNITS</td>
                       <td className="p-4 text-center">
-                         <Badge className="bg-green-600/10 text-green-500 border-none rounded-none italic px-3">{p.completed} DONE</Badge>
+                         <Badge className="bg-green-600/10 text-green-500 border-none rounded-none px-3 font-medium">{p.completed} DONE</Badge>
                       </td>
                       <td className="p-4 text-center">
                          <div className="inline-flex items-center gap-1.5 text-yellow-500">

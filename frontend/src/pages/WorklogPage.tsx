@@ -45,7 +45,7 @@ const WorklogPage: React.FC = () => {
      if (activeTab === 'quarterly') {
         const year = currentDate.getFullYear();
         const quarter = Math.floor(currentDate.getMonth() / 3) + 1;
-        return `QUARTER_0${quarter} // YEAR_${year}`;
+        return `Q${quarter} ${year}`;
      }
      return '';
   }, [activeTab, currentDate]);
@@ -126,20 +126,20 @@ const WorklogPage: React.FC = () => {
   });
 
   return (
-    <div className="flex bg-[#0a0a0a] min-h-screen font-mono text-zinc-300">
+    <div className="flex bg-[#0a0a0a] min-h-screen text-zinc-300">
         <Sidebar />
 
-        <main className="flex-1 ml-64 p-8 space-y-10 pb-32 relative">
+        <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 space-y-10 pb-32 relative">
             
             {/* Header / Nav */}
             <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-[#2e2e2e] relative overflow-hidden">
                 <div className="flex flex-col gap-3 z-10 transition-all">
                   <div className="flex items-center gap-3">
                      <div className="w-2 h-2 bg-[#F97316]" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-zinc-500 italic">Central_Worklog_Audit_Hub</span>
+                     <span className="text-xs font-medium text-zinc-500">Worklogs</span>
                   </div>
-                  <h1 className="text-4xl font-black uppercase text-white tracking-widest italic flex items-center gap-4">
-                     Temporal_Registry <LayoutGrid className="text-zinc-800" size={32} />
+                  <h1 className="text-2xl md:text-4xl font-semibold text-white flex items-center gap-4">
+                     Worklogs <LayoutGrid className="text-zinc-800" size={32} />
                   </h1>
                 </div>
 
@@ -149,12 +149,12 @@ const WorklogPage: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <UserIcon size={14} className="text-zinc-600" />
                         <Select value={selectedUser} onValueChange={setSelectedUser}>
-                           <SelectTrigger className="w-[200px] h-10 bg-[#111] border-[#2e2e2e] rounded-none text-[10px] font-black uppercase italic text-[#F97316]">
-                              <SelectValue placeholder="Target Operative_" />
+                           <SelectTrigger className="w-[200px] h-10 bg-[#111] border-[#2e2e2e] rounded-none text-xs font-medium text-[#F97316]">
+                              <SelectValue placeholder="Viewing:" />
                            </SelectTrigger>
-                           <SelectContent className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none text-zinc-300 font-mono">
+                           <SelectContent className="bg-[#0d0d0d] border-[#2e2e2e] rounded-none text-zinc-300">
                               {teamMembers.map(member => (
-                                 <SelectItem key={member.id} value={member.id} className="text-[10px] font-black uppercase italic focus:bg-[#F97316] focus:text-black hover:bg-[#F97316] hover:text-black">
+                                 <SelectItem key={member.id} value={member.id} className="text-xs font-medium focus:bg-[#F97316] focus:text-black hover:bg-[#F97316] hover:text-black">
                                     {member.name} {member.id === user?.id ? '(SELF)' : ''}
                                  </SelectItem>
                               ))}
@@ -172,11 +172,11 @@ const WorklogPage: React.FC = () => {
                  onValueChange={(v) => setActiveTab(v as LogTab)}
                  className="w-full md:w-auto"
                >
-                  <TabsList className="bg-[#111] border border-zinc-900 rounded-none h-12 p-1 gap-1 flex">
-                     <TabsTrigger value="daily" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Daily_Protocol</TabsTrigger>
-                     <TabsTrigger value="weekly" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Weekly_Cycle</TabsTrigger>
-                     <TabsTrigger value="monthly" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Monthly_Audit</TabsTrigger>
-                     {isManager && <TabsTrigger value="quarterly" className="text-[9px] font-black uppercase italic tracking-widest data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Quarterly_Vel</TabsTrigger>}
+                  <TabsList className="bg-[#111] border border-zinc-900 rounded-none h-12 p-1 gap-1 flex flex-wrap">
+                     <TabsTrigger value="daily" className="text-xs font-medium data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Daily</TabsTrigger>
+                     <TabsTrigger value="weekly" className="text-xs font-medium data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Weekly</TabsTrigger>
+                     <TabsTrigger value="monthly" className="text-xs font-medium data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Monthly</TabsTrigger>
+                     {isManager && <TabsTrigger value="quarterly" className="text-xs font-medium data-[state=active]:bg-[#F97316] data-[state=active]:text-black rounded-none">Quarterly</TabsTrigger>}
                   </TabsList>
                </Tabs>
 
@@ -184,8 +184,8 @@ const WorklogPage: React.FC = () => {
                <div className="flex items-center gap-4 bg-[#111] border border-zinc-900 p-1">
                   <Button onClick={handlePrev} size="sm" variant="ghost" className="h-10 w-10 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-none"><ChevronLeft size={20} /></Button>
                   <div className="flex flex-col items-center min-w-[220px]">
-                     <span className="text-[8px] font-black text-zinc-700 uppercase tracking-tighter italic">Currently Viewing_Period</span>
-                     <span className="text-xs font-black uppercase text-white italic tracking-[0.1em]">{dateLabel}</span>
+                     <span></span>
+                     <span className="text-xs font-semibold text-white">{dateLabel}</span>
                   </div>
                   <Button onClick={handleNext} size="sm" variant="ghost" className="h-10 w-10 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-none"><ChevronRight size={20} /></Button>
                </div>
@@ -217,7 +217,7 @@ const WorklogPage: React.FC = () => {
                {activeTab === 'daily' && !dailyData && !isLoadingDaily && (
                   <div className="flex flex-col items-center justify-center p-32 opacity-20 grayscale grayscale-0 space-y-6">
                      <FileText size={64} className="text-zinc-800" />
-                     <h2 className="text-2xl font-black uppercase tracking-[0.2em]">Temporal_Data_Missing</h2>
+                     <h2 className="text-2xl font-semibold">No data for this period</h2>
                   </div>
                )}
             </div>
@@ -228,7 +228,7 @@ const WorklogPage: React.FC = () => {
                   taskName={
                      dailyData?.sections.in_progress.find(t => t.id === taskTimelineId)?.name || 
                      weeklyData?.days.flatMap(d => d.tasks).find(t => t.id === taskTimelineId)?.name || 
-                     'Target_Transmission'
+                     'Task'
                   }
                   events={taskEvidence || []}
                   onClose={() => setTaskTimelineId(null)}

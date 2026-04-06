@@ -61,7 +61,7 @@ export const SelectItem: React.FC<{ value: string; children: React.ReactNode; cl
     <div 
       onClick={() => onValueChange?.(value)}
       className={cn(
-        "px-3 py-2 text-[10px] font-black uppercase italic text-zinc-400 hover:bg-[#F97316] hover:text-black cursor-pointer transition-colors",
+        "px-3 py-2 text-xs text-zinc-400 hover:bg-[#F97316] hover:text-black cursor-pointer transition-colors",
         className
       )}
     >

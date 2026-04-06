@@ -21,8 +21,8 @@ const Dashboard: React.FC = () => {
             <Sidebar />
 
             {/* Main Content Area */}
-            <main className="flex-1 ml-64 p-8 overflow-y-auto">
-                <PageHeader title="Control Center" subtitle={`${role} Portal`} />
+            <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 overflow-y-auto">
+                <PageHeader title="Dashboard" subtitle="" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Widgets for ALL roles */}
@@ -49,7 +49,7 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Background Decoratives */}
-                <div className="fixed bottom-0 right-0 p-8 opacity-5 pointer-events-none -z-1 font-mono text-[200px] font-black uppercase tracking-tighter leading-none italic select-none">
+                <div className="hidden md:block fixed bottom-0 right-0 p-8 opacity-5 pointer-events-none -z-1 font-mono text-[200px] font-bold leading-none select-none">
                     PROMETHEON
                 </div>
             </main>

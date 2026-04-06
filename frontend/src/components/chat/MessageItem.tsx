@@ -50,7 +50,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
            {message.sender.avatar_url ? (
              <img src={message.sender.avatar_url} className="w-full h-full object-cover" />
            ) : (
-             <span className="text-[10px] font-black uppercase text-zinc-500">{message.sender.name.slice(0,2)}</span>
+             <span className="text-xs font-medium text-zinc-500">{message.sender.name.slice(0,2)}</span>
            )}
         </div>
       </div>
@@ -61,8 +61,8 @@ const MessageItem: React.FC<MessageItemProps> = ({
       )}>
         {/* Header */}
         <div className="flex items-center gap-2 mb-1">
-           <span className="text-[10px] font-black uppercase text-white tracking-widest">{message.sender.name}</span>
-           <span className="text-[8px] font-bold text-zinc-600 uppercase italic">
+           <span className="text-xs font-medium text-white">{message.sender.name}</span>
+           <span className="text-[10px] font-normal text-zinc-600">
              {format(new Date(message.created_at), 'HH:mm')}
            </span>
         </div>
@@ -71,9 +71,9 @@ const MessageItem: React.FC<MessageItemProps> = ({
         {message.reply_to && (
            <div className="bg-[#111] border-l-2 border-[#F97316]/50 p-2 mb-1 flex items-center gap-2 opacity-60 rounded-sm">
               <CornerUpRight size={10} className="text-zinc-600" />
-              <div className="text-[9px] uppercase tracking-tighter truncate">
-                 <span className="font-black text-zinc-400">{message.reply_to.sender_name}: </span>
-                 <span className="text-zinc-600 italic">"{message.reply_to.content}"</span>
+              <div className="text-[11px] truncate">
+                 <span className="font-medium text-zinc-400">{message.reply_to.sender_name}: </span>
+                 <span className="text-zinc-600">"{message.reply_to.content}"</span>
               </div>
            </div>
         )}
@@ -100,7 +100,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
                 </ReactMarkdown>
              </div>
            )}
-           {message.is_edited && !message.is_deleted && <span className="text-[8px] text-zinc-700 italic ml-2">(edited)</span>}
+           {message.is_edited && !message.is_deleted && <span className="text-[10px] text-zinc-700 ml-2">(edited)</span>}
            {message.is_pinned && <Pin size={8} className="inline ml-1 text-[#F97316] fill-[#F97316]" />}
         </div>
 
@@ -111,8 +111,8 @@ const MessageItem: React.FC<MessageItemProps> = ({
                  <FileIcon size={16} className="text-zinc-500" />
               </div>
               <div className="flex-1 overflow-hidden">
-                 <p className="text-[9px] font-black uppercase text-zinc-300 truncate tracking-tighter">{message.attachment.auto_name}</p>
-                 <p className="text-[8px] text-zinc-600 font-bold">{(message.attachment.file_size_bytes / 1024).toFixed(1)} KB</p>
+                 <p className="text-[11px] font-medium text-zinc-300 truncate">{message.attachment.auto_name}</p>
+                 <p className="text-[10px] text-zinc-600 font-normal">{(message.attachment.file_size_bytes / 1024).toFixed(1)} KB</p>
               </div>
               <a href={message.attachment.s3_presigned_url} download className="text-zinc-700 hover:text-[#F97316]">
                  <Download size={14} />
@@ -131,7 +131,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
                    title={r.users.join(', ')}
                  >
                     <span className="text-xs">{r.emoji}</span>
-                    <span className="text-[9px] font-black text-zinc-500 group-hover/react:text-white">{r.count}</span>
+                    <span className="text-[11px] font-medium text-zinc-500 group-hover/react:text-white">{r.count}</span>
                  </button>
               ))}
            </div>

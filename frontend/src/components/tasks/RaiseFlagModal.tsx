@@ -126,15 +126,15 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 font-mono overflow-hidden flex flex-col p-0">
+      <DialogContent className="max-w-2xl bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 overflow-hidden flex flex-col p-0">
         <div className="absolute top-0 left-0 w-full h-1 bg-[#F97316]/50" />
         
         <DialogHeader className="p-6 pb-2">
-          <DialogTitle className="text-xl font-black uppercase tracking-tighter italic flex items-center gap-3 text-white">
-            <AlertTriangle className="text-[#F97316]" size={24} /> Raise Operational Flag
+          <DialogTitle className="text-xl font-semibold flex items-center gap-3 text-white">
+            <AlertTriangle className="text-[#F97316]" size={24} /> Raise Flag
           </DialogTitle>
-          <DialogDescription className="text-[10px] text-zinc-500 uppercase tracking-widest leading-relaxed">
-            Report blockers or redistribution requirements to command. <br/>
+          <DialogDescription className="text-xs text-zinc-500 leading-relaxed">
+            Report a blocker or request help from your manager. <br/>
             Task: <span className="text-zinc-300">{task.name}</span>
           </DialogDescription>
         </DialogHeader>
@@ -143,8 +143,8 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
            <div className="mx-6 mb-4 p-3 bg-red-950/30 border border-red-500/30 flex gap-3">
               <AlertCircle size={18} className="text-red-500 shrink-0" />
               <div className="space-y-1">
-                 <p className="text-[10px] font-black text-red-500 uppercase tracking-widest">⚠️ LATE FLAG DETECTED</p>
-                 <p className="text-[9px] text-red-400/80 leading-snug">This flag is being raised inside the minimum notice period. It will be recorded as a Late Flag protocol violation.</p>
+                 <p className="text-xs font-medium text-red-500">⚠️ LATE FLAG</p>
+                 <p className="text-xs text-red-400/80 leading-snug">This flag is being raised close to the deadline. It will be marked as a late flag.</p>
               </div>
            </div>
         )}
@@ -153,7 +153,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
            {/* Section 1: Reason */}
            <div className="space-y-4">
               <div className="space-y-2">
-                 <Label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest flex justify-between">
+                 <Label className="text-xs font-medium text-zinc-500 flex justify-between">
                     Reason Category <span>*</span>
                  </Label>
                  <div className="grid grid-cols-3 gap-2">
@@ -169,7 +169,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
                         type="button"
                         onClick={() => setReasonCategory(cat.id as FlagReasonCategory)}
                         className={cn(
-                          "py-2 px-3 text-[9px] font-black uppercase border transition-all",
+                          "py-2 px-3 text-xs font-medium border transition-all",
                           reasonCategory === cat.id 
                             ? "bg-[#F97316] border-[#F97316] text-black shadow-[0_0_10px_rgba(249,115,22,0.3)]" 
                             : "bg-[#161616] border-[#2e2e2e] text-zinc-500 hover:border-zinc-500"
@@ -182,7 +182,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
               </div>
 
               <div className="space-y-2">
-                 <Label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest flex justify-between">
+                 <Label className="text-xs font-medium text-zinc-500 flex justify-between">
                     Details <span>*</span>
                  </Label>
                  <Textarea 
@@ -190,7 +190,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
                    onChange={(e) => setReasonText(e.target.value)}
                    required
                    placeholder="Elaborate on the roadblock..."
-                   className="min-h-[80px] bg-[#111] border-[#2e2e2e] rounded-none focus-visible:border-[#F97316] uppercase text-[11px] placeholder:text-zinc-700"
+                   className="min-h-[80px] bg-[#111] border-[#2e2e2e] rounded-none focus-visible:border-[#F97316] text-xs placeholder:text-zinc-700"
                  />
               </div>
            </div>
@@ -200,7 +200,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
            {/* Section 2: Progress */}
            <div className="space-y-4">
               <div className="space-y-3">
-                 <Label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Global Progress Status</Label>
+                 <Label className="text-xs font-medium text-zinc-500">Progress So Far</Label>
                  <div className="flex gap-4 items-center">
                     {[
                       { id: 'not_started', label: 'NOT STARTED' },
@@ -223,7 +223,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
                              {progressStatus === item.id && <div className="w-1.5 h-1.5 bg-[#F97316]" />}
                           </div>
                           <span className={cn(
-                             "text-[9px] font-black transition-colors",
+                             "text-xs font-medium transition-colors",
                              progressStatus === item.id ? "text-white" : "text-zinc-600 group-hover:text-zinc-400"
                           )}>{item.label}</span>
                        </label>
@@ -233,7 +233,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
 
               {progressStatus !== 'not_started' && (
                  <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                    <Label className="text-[11px] font-black text-[#F97316] uppercase tracking-widest flex justify-between">
+                    <Label className="text-xs font-medium text-[#F97316] flex justify-between">
                        Handoff Notes <span>*</span>
                     </Label>
                     <Textarea 
@@ -241,11 +241,11 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
                       onChange={(e) => setHandoffNotes(e.target.value)}
                       required
                       placeholder="What has been done, where the code/files are, what remains..."
-                      className="min-h-[100px] bg-[#111] border-[#F97316]/20 rounded-none focus-visible:border-[#F97316] uppercase text-[11px]"
+                      className="min-h-[100px] bg-[#111] border-[#F97316]/20 rounded-none focus-visible:border-[#F97316] text-xs"
                     />
                     <div className="flex items-center gap-2 text-zinc-600">
                        <Info size={12} />
-                       <p className="text-[8px] font-bold uppercase">Required for redistribution processing.</p>
+                       <p className="text-xs font-bold">Required so someone else can pick up where you left off.</p>
                     </div>
                  </div>
               )}
@@ -256,7 +256,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
            {/* Section 3: Meta & Files */}
            <div className="grid grid-cols-2 gap-8">
               <div className="space-y-2">
-                 <Label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest flex justify-between">
+                 <Label className="text-xs font-medium text-zinc-500 flex justify-between">
                     Est. Hours Remaining
                  </Label>
                  <div className="relative">
@@ -272,13 +272,13 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
               </div>
 
               <div className="space-y-2">
-                 <Label className="text-[11px] font-black text-zinc-500 uppercase tracking-widest">Supporting Data</Label>
+                 <Label className="text-xs font-medium text-zinc-500">Supporting Data</Label>
                  <div 
                    className="relative h-10 border border-[#2e2e2e] bg-[#111] hover:border-zinc-500 transition-colors flex items-center px-4 cursor-pointer"
                    onClick={() => document.getElementById('flag-attachments')?.click()}
                  >
                     <Upload size={14} className="mr-3 text-zinc-600" />
-                    <span className="text-[10px] uppercase font-black tracking-widest text-zinc-500">Attach Evidence</span>
+                    <span className="text-xs font-medium text-zinc-500">Attach Files</span>
                     <input 
                       id="flag-attachments"
                       type="file" 
@@ -293,7 +293,7 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
            {attachments.length > 0 && (
               <div className="grid grid-cols-2 gap-2 mt-4">
                  {attachments.map((file, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 bg-[#161616] border border-[#2e2e2e] text-[9px] font-black uppercase">
+                    <div key={idx} className="flex items-center justify-between p-2 bg-[#161616] border border-[#2e2e2e] text-xs font-medium">
                        <div className="flex items-center gap-2 truncate pr-2">
                           <CheckCircle2 size={10} className="text-green-500" />
                           <span className="truncate">{file.name}</span>
@@ -311,16 +311,16 @@ const RaiseFlagModal: React.FC<RaiseFlagModalProps> = ({ task, isOpen, onClose }
            <Button 
              variant="outline" 
              onClick={onClose} 
-             className="rounded-none border-[#2e2e2e] font-black uppercase tracking-widest text-[10px]"
+             className="rounded-none border-[#2e2e2e] font-semibold text-xs"
            >
-              Cancel Abort
+              Cancel
            </Button>
            <Button 
              onClick={handleSubmit}
              disabled={flagMutation.isPending || (progressStatus !== 'not_started' && !handoffNotes) || !reasonText}
-             className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-black uppercase tracking-[0.2em] italic px-10 shadow-[0_0_20px_rgba(249,115,22,0.2)]"
+             className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-semibold px-10 shadow-[0_0_20px_rgba(249,115,22,0.2)]"
            >
-              {flagMutation.isPending ? 'PROCESSING...' : 'INITIATE FLAG PROTOCOL'}
+              {flagMutation.isPending ? 'Submitting...' : 'Submit Flag'}
            </Button>
         </DialogFooter>
       </DialogContent>

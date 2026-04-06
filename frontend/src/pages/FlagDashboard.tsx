@@ -54,19 +54,19 @@ const ReassignmentModal = ({ flag, isOpen, onClose }: { flag: TaskFlag, isOpen: 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 font-mono flex flex-col p-0">
+      <DialogContent className="max-w-3xl bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 flex flex-col p-0">
         <DialogHeader className="p-6 border-b border-[#2e2e2e]">
-          <DialogTitle className="text-xl font-black flex items-center gap-2 uppercase italic text-[#F97316]">
-            <Users size={24} /> Operative Reassignment
+          <DialogTitle className="text-xl font-semibold flex items-center gap-2 italic text-[#F97316]">
+            <Users size={24} /> Reassign Task
           </DialogTitle>
-          <DialogDescription className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1 leading-relaxed">
-             Transferring deployment for: <span className="text-zinc-300">{flag.task.name}</span>
+          <DialogDescription className="text-xs text-zinc-500 mt-1 leading-relaxed">
+             Reassigning: <span className="text-zinc-300">{flag.task.name}</span>
           </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
            <div className="space-y-3">
-              <label className="text-[10px] font-black uppercase text-zinc-600 tracking-tighter">Handoff Intelligence</label>
+              <label className="text-xs font-medium text-zinc-600">Handoff Notes</label>
               <div className="p-4 bg-[#111] border border-dashed border-[#2e2e2e] text-xs text-zinc-400 italic font-sans whitespace-pre-wrap">
                  {flag.handoff_notes || "No handoff notes provided."}
               </div>
@@ -74,8 +74,8 @@ const ReassignmentModal = ({ flag, isOpen, onClose }: { flag: TaskFlag, isOpen: 
 
            <div className="space-y-4">
               <div className="flex items-center justify-between">
-                 <label className="text-[10px] font-black uppercase text-zinc-600 tracking-tighter">Select Target Operative</label>
-                 <span className="text-[9px] text-zinc-700 uppercase font-bold italic tracking-widest">Protocol: Direct Deployment</span>
+                 <label className="text-xs font-medium text-zinc-600">Select Team Member</label>
+                 <span className="text-xs text-zinc-700 font-bold italic"></span>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -95,10 +95,10 @@ const ReassignmentModal = ({ flag, isOpen, onClose }: { flag: TaskFlag, isOpen: 
                                {member.user.avatar_url ? <img src={member.user.avatar_url} className="w-full h-full object-cover" /> : <UserIcon size={16} />}
                             </div>
                             <div className="text-left">
-                               <p className="text-[11px] font-black uppercase text-white">{member.user.name}</p>
+                               <p className="text-xs font-medium text-white">{member.user.name}</p>
                                <div className="flex items-center gap-2 mt-1">
                                   <Badge className={cn(
-                                    "text-[8px] font-black px-1.5 h-4",
+                                    "text-xs font-medium px-1.5 h-4",
                                     member.band === 'HIGH' ? "bg-green-600 text-white" :
                                     member.band === 'MEDIUM' ? "bg-yellow-600 text-black" :
                                     member.band === 'LOW' ? "bg-orange-600 text-white" : "bg-zinc-700 text-white"
@@ -106,7 +106,7 @@ const ReassignmentModal = ({ flag, isOpen, onClose }: { flag: TaskFlag, isOpen: 
                                      {member.band} BAND
                                   </Badge>
                                   {isOld && (
-                                    <div className="flex items-center gap-1 text-[8px] text-red-500 font-bold uppercase italic">
+                                    <div className="flex items-center gap-1 text-xs text-red-500 font-bold italic">
                                        <Clock size={8} /> stale
                                     </div>
                                   )}
@@ -127,13 +127,13 @@ const ReassignmentModal = ({ flag, isOpen, onClose }: { flag: TaskFlag, isOpen: 
         </div>
 
         <DialogFooter className="p-6 bg-[#111] border-t border-[#2e2e2e]">
-           <Button variant="outline" onClick={onClose} className="rounded-none border-[#2e2e2e] font-black text-[10px] uppercase">Cancel Transfer</Button>
+           <Button variant="outline" onClick={onClose} className="rounded-none border-[#2e2e2e] font-semibold text-xs">Cancel</Button>
            <Button 
              onClick={() => selectedDevId && reassignMutation.mutate(selectedDevId)}
              disabled={!selectedDevId || reassignMutation.isPending}
-             className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-black uppercase text-[10px] italic px-8"
+             className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-semibold text-xs italic px-8"
            >
-              {reassignMutation.isPending ? 'ASSIGNING...' : 'CONFIRM DEPLOYMENT'}
+              {reassignMutation.isPending ? 'Assigning...' : 'Confirm Reassignment'}
            </Button>
         </DialogFooter>
       </DialogContent>
@@ -179,31 +179,31 @@ const FlagDashboard: React.FC = () => {
     });
 
     return (
-        <div className="flex bg-[#111111] min-h-screen font-mono text-zinc-300">
+        <div className="flex bg-[#111111] min-h-screen text-zinc-300">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-10 flex flex-col h-screen overflow-hidden">
+            <main className="flex-1 ml-0 md:ml-64 p-4 md:p-10 flex flex-col min-h-screen md:h-screen overflow-auto md:overflow-hidden">
                 
                 <header className="flex items-center justify-between mb-10 shrink-0">
-                    <div className="flex items-center gap-6">
-                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center italic font-black text-black text-2xl shadow-[0_0_20px_rgba(220,38,38,0.3)]">
+                    <div className="flex items-center gap-4 md:gap-6 pt-10 md:pt-0">
+                        <div className="w-12 h-12 bg-red-600 flex items-center justify-center italic font-semibold text-black text-2xl shadow-[0_0_20px_rgba(220,38,38,0.3)]">
                            !
                         </div>
                         <div>
-                           <h1 className="text-3xl font-black uppercase tracking-tighter italic text-white">Incident Hub / Flags</h1>
-                           <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-[0.3em] mt-1 italic">Tactical Task Redistribution Command</p>
+                           <h1 className="text-xl md:text-3xl font-semibold text-white">Flags</h1>
+                           <p className="text-xs text-zinc-600 font-bold mt-1 italic">Tasks flagged by team members</p>
                         </div>
                     </div>
                 </header>
 
                 <div className="flex items-center justify-between mb-8 shrink-0">
-                   <div className="bg-[#1a1a1a] p-1 border border-[#2e2e2e] flex gap-1">
+                   <div className="bg-[#1a1a1a] p-1 border border-[#2e2e2e] flex flex-wrap gap-1">
                       {['all', 'pending_review', 'resolved', 'expired'].map(status => (
                          <button 
                             key={status} 
                             onClick={() => setActiveTab(status)}
                             className={cn(
-                                "py-2 px-6 text-[10px] font-black uppercase transition-all rounded-none",
+                                "py-2 px-3 md:px-6 text-xs font-medium transition-all rounded-none",
                                 activeTab === status ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white"
                             )}
                          >
@@ -221,8 +221,8 @@ const FlagDashboard: React.FC = () => {
                    ) : !Array.isArray(flags) || flags.length === 0 ? (
                      <div className="flex flex-col items-center justify-center h-full border-2 border-dashed border-[#2e2e2e] opacity-20 italic grayscale">
                         <AlertTriangle size={64} className="mb-4" />
-                        <p className="text-xl font-black uppercase tracking-widest">No Operational Anomalies Detected</p>
-                        <p className="text-xs uppercase font-bold mt-2">The sector registry is currently clear of reported flags.</p>
+                        <p className="text-xl font-semibold">No flags right now</p>
+                        <p className="text-xs font-bold mt-2">All clear — no tasks have been flagged yet.</p>
                      </div>
                    ) : (
                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-20">
@@ -239,7 +239,7 @@ const FlagDashboard: React.FC = () => {
                                  <div className="p-5 border-b border-[#2e2e2e] flex justify-between items-start">
                                     <div className="space-y-2">
                                        <button onClick={() => navigate(`/tasks/${flag.task.id}`)} className="group/link flex items-center gap-2">
-                                          <h3 className="text-sm font-black uppercase tracking-tight group-hover/link:text-[#F97316] transition-colors">{flag.task.name}</h3>
+                                          <h3 className="text-sm font-semibold group-hover/link:text-[#F97316] transition-colors">{flag.task.name}</h3>
                                           <ArrowRight size={12} className="text-zinc-700 group-hover/link:text-[#F97316]" />
                                        </button>
                                        <div className="flex items-center gap-3">
@@ -247,57 +247,57 @@ const FlagDashboard: React.FC = () => {
                                              <div className="w-5 h-5 rounded-full bg-[#1a1a1a] border border-[#2e2e2e] flex items-center justify-center overflow-hidden">
                                                 {flag.flagged_by.avatar_url ? <img src={flag.flagged_by.avatar_url} className="w-full h-full object-cover" /> : <UserIcon size={12} />}
                                              </div>
-                                             <span className="text-[10px] font-black uppercase text-zinc-400">{flag.flagged_by.name}</span>
+                                             <span className="text-xs font-medium text-zinc-400">{flag.flagged_by.name}</span>
                                           </div>
-                                          <span className="text-[9px] font-bold text-zinc-600 uppercase tracking-widest">{formatDistanceToNow(new Date(flag.created_at))} ago</span>
+                                          <span className="text-xs font-bold text-zinc-600">{formatDistanceToNow(new Date(flag.created_at))} ago</span>
                                        </div>
                                     </div>
                                     <div className="flex flex-col items-end gap-1.5">
-                                       {flag.is_late_flag && <Badge className="bg-red-600/20 text-red-500 border-red-500/30 text-[9px] font-black italic rounded-none px-2 py-0.5">LATE FLAG</Badge>}
-                                       {flag.flag_number === 2 && <Badge className="bg-orange-500/20 text-orange-500 border-orange-500/30 text-[9px] font-black italic rounded-none px-2 py-0.5 tracking-tighter">⚠️ DOUBLE FLAG</Badge>}
-                                       <Badge className="bg-[#111] border-[#2e2e2e] text-zinc-500 text-[9px] font-black uppercase rounded-none tracking-widest">#{flag.id.slice(0, 8)}</Badge>
+                                       {flag.is_late_flag && <Badge className="bg-red-600/20 text-red-500 border-red-500/30 text-xs font-medium rounded-none px-2 py-0.5">LATE FLAG</Badge>}
+                                       {flag.flag_number === 2 && <Badge className="bg-orange-500/20 text-orange-500 border-orange-500/30 text-xs font-medium rounded-none px-2 py-0.5">⚠️ DOUBLE FLAG</Badge>}
+                                       <Badge className="bg-[#111] border-[#2e2e2e] text-zinc-500 text-xs font-medium rounded-none">#{flag.id.slice(0, 8)}</Badge>
                                     </div>
                                  </div>
                                  <div className="p-5 flex gap-10">
                                     <div className="space-y-4 flex-1">
                                        <div className="space-y-1">
-                                          <p className="text-[10px] font-black uppercase text-[#F97316]/60">Reason / Detail</p>
+                                          <p className="text-xs font-medium text-[#F97316]/60">Reason / Detail</p>
                                           <div className="flex items-center gap-2 mb-2">
-                                             <Badge className="bg-zinc-800 text-zinc-400 rounded-none text-[8px] font-black uppercase">{flag.reason_category}</Badge>
+                                             <Badge className="bg-zinc-800 text-zinc-400 rounded-none text-xs font-medium">{flag.reason_category}</Badge>
                                           </div>
-                                          <p className="text-[11px] text-zinc-400 leading-relaxed line-clamp-2 uppercase italic">{flag.reason_text}</p>
+                                          <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2 italic">{flag.reason_text}</p>
                                        </div>
                                     </div>
                                     <div className="w-32 space-y-4">
                                        <div className="space-y-1">
-                                          <p className="text-[10px] font-black uppercase text-zinc-600">Current Proc.</p>
-                                          <Badge className="bg-[#111] border-[#2e2e2e] text-white w-full flex justify-center text-[9px] font-black rounded-none">
+                                          <p className="text-xs font-medium text-zinc-600">Current Proc.</p>
+                                          <Badge className="bg-[#111] border-[#2e2e2e] text-white w-full flex justify-center text-xs font-medium rounded-none">
                                              {flag.progress_status.replace('pct_', '')}% DONE
                                           </Badge>
                                        </div>
                                        <div className="space-y-1">
-                                          <p className="text-[10px] font-black uppercase text-zinc-600">Est. Rem.</p>
-                                          <p className="text-xs font-black text-white italic">{flag.estimated_hours_remaining || '?' }h</p>
+                                          <p className="text-xs font-medium text-zinc-600">Est. Rem.</p>
+                                          <p className="text-xs font-medium text-white italic">{flag.estimated_hours_remaining || '?' }h</p>
                                        </div>
                                     </div>
                                  </div>
                                  {flag.status === 'pending_review' && (
-                                    <div className="p-1 px-5 pb-5 grid grid-cols-3 gap-2">
+                                    <div className="p-1 px-5 pb-5 grid grid-cols-1 sm:grid-cols-3 gap-2">
                                        <Button 
                                          onClick={() => { setSelectedFlag(flag); setIsExtendOpen(true); }}
-                                         className="h-9 rounded-none bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-[9px] font-black text-zinc-400 hover:text-white uppercase tracking-widest flex gap-2"
+                                         className="h-9 rounded-none bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-xs font-medium text-zinc-400 hover:text-white flex gap-2"
                                        >
                                           <Calendar size={12} className="text-[#F97316]" /> Extend
                                        </Button>
                                        <Button 
                                          onClick={() => { setSelectedFlag(flag); setIsReassignOpen(true); }}
-                                         className="h-9 rounded-none bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-[9px] font-black text-zinc-400 hover:text-white uppercase tracking-widest flex gap-2"
+                                         className="h-9 rounded-none bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-xs font-medium text-zinc-400 hover:text-white flex gap-2"
                                        >
                                           <Users size={12} className="text-[#F97316]" /> Reassign
                                        </Button>
                                        <Button 
                                          onClick={() => resolveMutation.mutate({ flagId: flag.id, resolution: 'rescope' })}
-                                         className="h-9 rounded-none bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-[9px] font-black text-zinc-400 hover:text-white uppercase tracking-widest flex gap-2"
+                                         className="h-9 rounded-none bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-xs font-medium text-zinc-400 hover:text-white flex gap-2"
                                        >
                                           <Split size={12} className="text-[#F97316]" /> Rescope
                                        </Button>
@@ -320,13 +320,13 @@ const FlagDashboard: React.FC = () => {
             )}
 
             <Dialog open={isExtendOpen} onOpenChange={setIsExtendOpen}>
-               <DialogContent className="max-w-sm bg-[#161616] border-[#2e2e2e] text-zinc-300 font-mono">
+               <DialogContent className="max-w-sm bg-[#161616] border-[#2e2e2e] text-zinc-300">
                   <DialogHeader>
-                     <DialogTitle className="uppercase font-black italic text-[#F97316]">Extend Deadline Protocol</DialogTitle>
+                     <DialogTitle className="font-semibold text-[#F97316]">Extend Deadline</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
                      <div className="space-y-2">
-                        <Label>New Terminal Deadline</Label>
+                        <Label>New Deadline</Label>
                         <Input 
                           type="datetime-local"
                           value={newDeadline}
@@ -339,7 +339,7 @@ const FlagDashboard: React.FC = () => {
                      <Button 
                        onClick={() => selectedFlag && resolveMutation.mutate({ flagId: selectedFlag.id, resolution: 'extend', new_deadline: new Date(newDeadline).toISOString() })}
                        disabled={!newDeadline || resolveMutation.isPending}
-                       className="w-full bg-[#F97316] text-black font-black uppercase italic"
+                       className="w-full bg-[#F97316] text-black font-semibold"
                      >
                         Confirm Extension
                      </Button>

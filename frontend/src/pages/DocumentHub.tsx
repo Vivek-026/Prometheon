@@ -77,6 +77,7 @@ const DocumentHub: React.FC = () => {
     const isAdmin = user?.role === 'admin';
 
     // --- Filter States ---
+    const [filterOpen, setFilterOpen] = useState(false);
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
     const [search, setSearch] = useState('');
     const [selectedUser, setSelectedUser] = useState<string | null>(null);
@@ -189,29 +190,30 @@ const DocumentHub: React.FC = () => {
     };
 
     return (
-        <div className="flex bg-[#111111] min-h-screen font-mono text-zinc-300">
+        <div className="flex bg-[#111111] min-h-screen text-zinc-300">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-8 flex flex-col gap-10">
-                <PageHeader title="Intelligence Hub" subtitle="Document Registry" />
+            <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 flex flex-col gap-10">
+                <PageHeader title="Documents" subtitle="All files uploaded by your team" />
                 
-                <div className="flex gap-8">
+                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
                     {/* LEFT PANEL: FILTERS */}
-                    <aside className="w-72 space-y-10 shrink-0">
+                    <button onClick={() => setFilterOpen(!filterOpen)} className="lg:hidden mb-4 px-4 py-3 min-h-[44px] bg-[#1a1a1a] border border-[#2e2e2e] text-xs font-medium text-zinc-400 flex items-center gap-2 w-full justify-center"><Filter size={14} className="text-[#F97316]" /> Filters</button>
+                    <aside className={cn("w-full lg:w-72 space-y-10 shrink-0", filterOpen ? "block" : "hidden lg:block")}>
                         <div className="space-y-6">
                             <div className="flex items-center gap-2">
                                 <Filter size={14} className="text-[#F97316]" />
-                                <h2 className="text-[10px] font-black uppercase tracking-[0.2em]">Filter Database</h2>
+                                <h2 className="text-xs font-semibold">Filters</h2>
                             </div>
                             
                             <section className="space-y-3">
-                                <Label className="text-zinc-600 block mb-1">Sector Class</Label>
+                                <Label className="text-zinc-600 block mb-1">Category</Label>
                                 <RadioGroup className="flex flex-col gap-1.5">
                                     {['all', 'product', 'process', 'meetings', 'research', 'legal_hr', 'task_uploads', 'finance'].map(cat => (
                                         (cat !== 'finance' || isAdmin) && (
                                             <RadioGroupItem 
                                                 key={cat}
-                                                label={cat.replace('_', '/')}
+                                                label={cat === 'task_uploads' ? 'Task Uploads' : cat.replace('_', '/')}
                                                 checked={categoryFilter === cat}
                                                 onChange={() => setCategoryFilter(cat)}
                                                 className="py-1.5 px-3 border-transparent has-[:checked]:bg-[#1a1a1a] has-[:checked]:border-[#2e2e2e]"
@@ -225,7 +227,7 @@ const DocumentHub: React.FC = () => {
                             <Separator className="bg-[#2e2e2e]" />
 
                             <section className="space-y-4">
-                                <Label className="text-zinc-600">By Operative</Label>
+                                <Label className="text-zinc-600">By Person</Label>
                                 <div className="space-y-1.5">
                                     {(teamMembers && Array.isArray(teamMembers) ? teamMembers : []).map((m: any) => (
                                         <button 
@@ -240,10 +242,10 @@ const DocumentHub: React.FC = () => {
                                                 <div className="w-7 h-7 rounded-full bg-[#1a1a1a] border border-[#2e2e2e] flex items-center justify-center overflow-hidden">
                                                     {m.avatar_url ? <img src={m.avatar_url} className="w-full h-full object-cover" /> : <UserIcon size={12} />}
                                                 </div>
-                                                <span className={cn("text-[10px] font-black uppercase tracking-tight", selectedUser === m.id ? "text-[#F97316]" : "text-zinc-400 group-hover:text-white")}>{m.name}</span>
+                                                <span className={cn("text-xs font-medium", selectedUser === m.id ? "text-[#F97316]" : "text-zinc-400 group-hover:text-white")}>{m.name}</span>
                                             </div>
                                             {m.doc_count !== undefined && (
-                                                <span className="text-[9px] font-bold text-zinc-600 bg-[#111] px-1.5 py-0.5 border border-[#2e2e2e]">{m.doc_count}</span>
+                                                <span className="text-[11px] font-bold text-zinc-600 bg-[#111] px-1.5 py-0.5 border border-[#2e2e2e]">{m.doc_count}</span>
                                             )}
                                         </button>
                                     ))}
@@ -253,8 +255,8 @@ const DocumentHub: React.FC = () => {
                             <Separator className="bg-[#2e2e2e]" />
 
                             <section className="space-y-3">
-                                <Label className="text-zinc-600">Origin / Uplink</Label>
-                                <select className="w-full bg-[#1a1a1a] border border-[#2e2e2e] text-[9px] font-black uppercase p-2.5 outline-none focus:border-[#F97316]">
+                                <Label className="text-zinc-600">Source</Label>
+                                <select className="w-full bg-[#1a1a1a] border border-[#2e2e2e] text-[11px] font-medium p-2.5 outline-none focus:border-[#F97316]">
                                     <option>All Sources</option>
                                     <option>Direct Upload</option>
                                     <option>Task Brief</option>
@@ -267,28 +269,28 @@ const DocumentHub: React.FC = () => {
 
                     {/* MAIN CONTENT Area */}
                     <div className="flex-1 space-y-8">
-                        <div className="flex items-center justify-between gap-4">
+                        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
                             <div className="relative flex-1 group">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-[#F97316] transition-colors" size={16} />
                                 <Input 
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="SEARCH HUB BY IDENTIFIER, FILE NAME, OR META-TAG..."
-                                    className="pl-10 h-12 bg-[#1a1a1a] border-[#2e2e2e] rounded-none focus-visible:border-[#F97316] tracking-widest text-[11px] uppercase font-black italic"
+                                    placeholder="Search by file name, tag, or category..."
+                                    className="pl-10 h-12 bg-[#1a1a1a] border-[#2e2e2e] rounded-none focus-visible:border-[#F97316] text-xs font-normal"
                                 />
                             </div>
                             
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                                 <div className="flex bg-[#1a1a1a] border border-[#2e2e2e] p-1">
                                     <button 
                                         onClick={() => setSortBy('recent')} 
-                                        className={cn("px-4 h-9 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all", sortBy === 'recent' ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white")}
+                                        className={cn("px-4 h-9 text-xs font-medium flex items-center gap-2 transition-all", sortBy === 'recent' ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white")}
                                     >
                                         <History size={14} /> RECENT
                                     </button>
                                     <button 
                                         onClick={() => setSortBy('name')} 
-                                        className={cn("px-4 h-9 text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all", sortBy === 'name' ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white")}
+                                        className={cn("px-4 h-9 text-xs font-medium flex items-center gap-2 transition-all", sortBy === 'name' ? "bg-[#F97316] text-black" : "text-zinc-500 hover:text-white")}
                                     >
                                         <ArrowUpDown size={14} /> A-Z
                                     </button>
@@ -296,9 +298,9 @@ const DocumentHub: React.FC = () => {
 
                                 <Button 
                                     onClick={() => setIsUploadModalOpen(true)}
-                                    className="h-11 px-6 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-black flex gap-2"
+                                    className="h-11 px-6 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-semibold flex gap-2"
                                 >
-                                    <Plus size={16} strokeWidth={3} /> ESTABLISH TRANSMISSION
+                                    <Plus size={16} strokeWidth={3} /> Upload File
                                 </Button>
                             </div>
                         </div>
@@ -311,7 +313,7 @@ const DocumentHub: React.FC = () => {
                         ) : filteredDocs.length === 0 ? (
                             <div className="flex flex-col items-center justify-center p-32 opacity-20 grayscale-0 italic text-center">
                                 <AlertCircle size={48} className="mb-4" />
-                                <span className="text-xl font-black uppercase tracking-widest">Null Archive Data_</span>
+                                <span className="text-xl font-semibold">No documents found</span>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -326,13 +328,13 @@ const DocumentHub: React.FC = () => {
                                         </div>
                                         <CardContent className="p-5 space-y-4">
                                             <div className="flex flex-col gap-1.5 min-w-0">
-                                                <Badge variant="outline" className="w-fit text-[8px] h-4 border-zinc-800 uppercase font-black text-zinc-600">{doc.category}</Badge>
-                                                <h3 className="text-[11px] font-black uppercase text-white truncate pr-6 tracking-tight">{doc.auto_name}</h3>
+                                                <Badge variant="outline" className="w-fit text-[10px] h-4 border-zinc-800 font-medium text-zinc-600">{doc.category}</Badge>
+                                                <h3 className="text-xs font-semibold text-white truncate pr-6">{doc.auto_name}</h3>
                                             </div>
                                             
                                             <div className="flex flex-wrap gap-1.5">
                                                 {doc.tags.slice(0,3).map(tag => (
-                                                    <span key={tag} className="text-[8px] font-bold text-zinc-600 uppercase border border-zinc-900 px-1 italic">#{tag}</span>
+                                                    <span key={tag} className="text-[10px] font-bold text-zinc-600 border border-zinc-900 px-1">#{tag}</span>
                                                 ))}
                                             </div>
 
@@ -343,10 +345,10 @@ const DocumentHub: React.FC = () => {
                                                     <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center border border-zinc-800 overflow-hidden">
                                                         <img src={doc.uploaded_by.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${doc.uploaded_by.name}`} className="w-full h-full object-cover" />
                                                     </div>
-                                                    <span className="text-[8px] font-black uppercase text-zinc-600 italic leading-none">{doc.uploaded_by.name}</span>
+                                                    <span className="text-[10px] font-medium text-zinc-600 leading-none">{doc.uploaded_by.name}</span>
                                                 </div>
                                                 <div className="flex flex-col items-end">
-                                                    <span className="text-[8px] font-bold text-zinc-800 uppercase leading-none">{safeFormatDistance(doc.created_at)}</span>
+                                                    <span className="text-[10px] font-bold text-zinc-800 leading-none">{safeFormatDistance(doc.created_at)}</span>
                                                 </div>
                                             </div>
                                         </CardContent>
@@ -362,8 +364,8 @@ const DocumentHub: React.FC = () => {
             <Dialog open={isUploadModalOpen} onOpenChange={setIsUploadModalOpen}>
                 <DialogContent className="max-w-xl bg-[#161616] border-[#2e2e2e] text-zinc-300">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-black uppercase tracking-tighter italic">Upload Asset Protocol</DialogTitle>
-                        <DialogDescription className="text-[10px] text-zinc-500 uppercase tracking-widest">Ensure compliance before establishing data uplink</DialogDescription>
+                        <DialogTitle className="text-xl font-semibold">Upload File</DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-500">Select a file and choose its category</DialogDescription>
                     </DialogHeader>
 
                     <form onSubmit={handleUploadSubmit} className="space-y-6 pt-4">
@@ -381,27 +383,27 @@ const DocumentHub: React.FC = () => {
                                       <Upload size={24} />
                                    </div>
                                    <div className="text-center">
-                                      <p className="text-xs font-black uppercase">{uploadFile.name}</p>
-                                      <p className="text-[10px] text-[#F97316] font-bold uppercase mt-1">{(uploadFile.size / 1024).toFixed(1)} KB / VALIDATED</p>
+                                      <p className="text-xs font-semibold">{uploadFile.name}</p>
+                                      <p className="text-xs text-[#F97316] font-bold mt-1">{(uploadFile.size / 1024).toFixed(1)} KB / VALIDATED</p>
                                    </div>
                                 </>
                             ) : (
                                 <>
                                    <Upload size={32} className="text-zinc-600" />
-                                   <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Uplink target file locally or remote</p>
-                                   <p className="text-[8px] text-zinc-700 font-bold uppercase">all formats accepted / encrypted at rest</p>
+                                   <p className="text-xs font-medium text-zinc-500">Click to select a file or drag and drop</p>
+                                   <p className="text-[10px] text-zinc-700 font-bold">All file formats accepted</p>
                                 </>
                             )}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                               <Label>Asset Category</Label>
+                               <Label>Category</Label>
                                <select 
                                  value={uploadCategory} 
                                  onChange={(e) => setUploadCategory(e.target.value)}
                                  required
-                                 className="w-full bg-[#111] border border-[#2e2e2e] text-xs font-black uppercase p-3 outline-none focus:border-[#F97316]"
+                                 className="w-full bg-[#111] border border-[#2e2e2e] text-xs font-medium p-3 outline-none focus:border-[#F97316]"
                                >
                                   <option value="">Select Category</option>
                                   <option value="product">Product</option>
@@ -415,7 +417,7 @@ const DocumentHub: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                               <Label>Project Meta-Tags</Label>
+                               <Label>Tags</Label>
                                <div className="relative">
                                   <TagIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" size={14} />
                                   <Input 
@@ -428,7 +430,7 @@ const DocumentHub: React.FC = () => {
                                </div>
                                <div className="flex flex-wrap gap-2 mt-2">
                                   {uploadTags.map(tag => (
-                                    <Badge key={tag} className="bg-zinc-800 text-zinc-300 text-[10px] h-6 rounded-none flex items-center gap-1">
+                                    <Badge key={tag} className="bg-zinc-800 text-zinc-300 text-xs h-6 rounded-none flex items-center gap-1">
                                       {tag}
                                       <X size={10} className="cursor-pointer" onClick={() => setUploadTags(uploadTags.filter(t => t !== tag))} />
                                     </Badge>
@@ -442,16 +444,16 @@ const DocumentHub: React.FC = () => {
                               type="button" 
                               variant="ghost" 
                               onClick={() => setIsUploadModalOpen(false)}
-                              className="text-zinc-600 font-bold uppercase hover:bg-transparent"
+                              className="text-zinc-600 font-bold hover:bg-transparent"
                             >
                               Cancel
                             </Button>
                             <Button 
                               type="submit" 
                               disabled={uploadMutation.isPending}
-                              className="bg-[#F97316] hover:bg-[#F97316]/90 text-black rounded-none font-black uppercase px-8"
+                              className="bg-[#F97316] hover:bg-[#F97316]/90 text-black rounded-none font-semibold px-8"
                             >
-                              {uploadMutation.isPending ? "Transmitting..." : "Initialize Uplink"}
+                              {uploadMutation.isPending ? "Uploading..." : "Upload"}
                             </Button>
                         </DialogFooter>
                     </form>
@@ -462,8 +464,8 @@ const DocumentHub: React.FC = () => {
             <Dialog open={isVersionDialogOpen} onOpenChange={setIsVersionDialogOpen}>
                 <DialogContent className="bg-[#161616] border-[#2e2e2e] text-zinc-300">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-black uppercase tracking-tighter italic">Duplicate Registry Detected</DialogTitle>
-                        <DialogDescription className="text-xs text-zinc-500 uppercase">IDENTIFIER MATCH FOUND. SELECT PROTOCOL:</DialogDescription>
+                        <DialogTitle className="text-xl font-semibold">Duplicate File Detected</DialogTitle>
+                        <DialogDescription className="text-xs text-zinc-500">A file with the same name already exists. What would you like to do?</DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex flex-col sm:flex-row gap-4 pt-4">
                         <Button 
@@ -471,7 +473,7 @@ const DocumentHub: React.FC = () => {
                             uploadMutation.mutate({ ...pendingUploadData });
                             setIsVersionDialogOpen(false);
                           }}
-                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-none font-black uppercase text-[9px] h-11"
+                          className="bg-blue-600 hover:bg-blue-700 text-white rounded-none font-semibold text-[11px] h-11"
                         >
                            Link as New Version
                         </Button>
@@ -480,7 +482,7 @@ const DocumentHub: React.FC = () => {
                              uploadMutation.mutate({ ...pendingUploadData, linkVersionId: null });
                              setIsVersionDialogOpen(false);
                            }}
-                           className="bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-white rounded-none font-black uppercase text-[9px] h-11"
+                           className="bg-[#1a1a1a] border border-[#2e2e2e] hover:border-zinc-500 text-white rounded-none font-semibold text-[11px] h-11"
                         >
                            Upload Independently
                         </Button>

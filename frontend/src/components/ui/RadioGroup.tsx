@@ -34,7 +34,7 @@ const RadioGroupItem = React.forwardRef<
         ref={ref}
         {...props}
       />
-      <span className={cn("text-xs font-black uppercase tracking-widest", variantColor)}>
+      <span className={cn("text-xs font-medium", variantColor)}>
         {label}
       </span>
     </label>

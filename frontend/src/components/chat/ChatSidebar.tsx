@@ -45,12 +45,12 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ groups, dms, onNewGroup, onNe
   });
 
   return (
-    <div className="w-[240px] bg-[#111] border-r border-[#2e2e2e] flex flex-col h-full shrink-0 font-mono shadow-[10px_0_30px_rgba(0,0,0,0.2)]">
+    <div className="w-[240px] bg-[#111] border-r border-[#2e2e2e] flex flex-col h-full shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.2)]">
        {/* Header */}
        <div className="p-4 border-b border-[#2e2e2e] flex items-center justify-between">
           <div className="flex items-center gap-2">
-             <div className="w-5 h-5 bg-[#F97316] rounded-sm flex items-center justify-center font-black text-black italic text-xs">P</div>
-             <span className="text-[11px] font-black uppercase italic text-zinc-300">Netlink_Hub</span>
+             <div className="w-5 h-5 bg-[#F97316] rounded-sm flex items-center justify-center font-semibold text-black text-xs">P</div>
+             <span className="text-xs font-semibold text-zinc-300">Chat</span>
           </div>
           <Bell size={14} className="text-zinc-600 hover:text-white cursor-pointer transition-colors" />
        </div>
@@ -61,7 +61,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ groups, dms, onNewGroup, onNe
           {/* Groups Section */}
           <section className="space-y-2">
              <div className="flex items-center justify-between px-2 mb-3">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5"><Hash size={12} className="text-zinc-700" /> Operative_Groups</span>
+                <span className="text-xs font-medium text-zinc-500 flex items-center gap-1.5"><Hash size={12} className="text-zinc-700" /> Groups</span>
                 {isManager && <button onClick={onNewGroup} className="text-zinc-600 hover:text-[#F97316]"><Plus size={14} /></button>}
              </div>
              <div className="space-y-1">
@@ -77,13 +77,13 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ groups, dms, onNewGroup, onNe
                       <div className="flex flex-col gap-0.5 text-left overflow-hidden">
                          <div className="flex items-center gap-2">
                             <span className={cn(
-                              "text-[10px] font-black uppercase transition-colors truncate",
-                              groupId === group.id ? "text-[#F97316] italic" : "text-zinc-400 group-hover:text-white"
+                              "text-xs font-medium transition-colors truncate",
+                              groupId === group.id ? "text-[#F97316]" : "text-zinc-400 group-hover:text-white"
                             )}>{group.name}</span>
-                            {group.unread_count > 0 && <Badge className="h-4 px-1 text-[8px] bg-[#F97316] text-black font-black italic">{group.unread_count}</Badge>}
+                            {group.unread_count > 0 && <Badge className="h-4 px-1 text-[10px] bg-[#F97316] text-black font-medium">{group.unread_count}</Badge>}
                          </div>
                          {group.last_message && (
-                            <p className="text-[8px] text-zinc-700 font-bold truncate uppercase">{group.last_message.sender_name}: {group.last_message.content}</p>
+                            <p className="text-[10px] text-zinc-700 font-normal truncate">{group.last_message.sender_name}: {group.last_message.content}</p>
                          )}
                       </div>
                    </button>
@@ -94,7 +94,7 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ groups, dms, onNewGroup, onNe
           {/* DMs Section */}
           <section className="space-y-2">
              <div className="flex items-center justify-between px-2 mb-3">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest flex items-center gap-1.5"><MessageSquare size={12} className="text-zinc-700" /> Secure_Channels</span>
+                <span className="text-xs font-medium text-zinc-500 flex items-center gap-1.5"><MessageSquare size={12} className="text-zinc-700" /> Direct Messages</span>
                 <button onClick={onNewDM} className="text-zinc-600 hover:text-[#F97316]"><Plus size={14} /></button>
              </div>
              <div className="space-y-1">
@@ -121,13 +121,13 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ groups, dms, onNewGroup, onNe
                             <div className="flex flex-col gap-0.5 text-left overflow-hidden flex-1">
                                <div className="flex items-center justify-between">
                                   <span className={cn(
-                                    "text-[10px] font-black uppercase transition-colors truncate",
-                                    threadId === thread.id ? "text-indigo-400 italic" : "text-zinc-400 group-hover:text-white"
+                                    "text-xs font-medium transition-colors truncate",
+                                    threadId === thread.id ? "text-indigo-400" : "text-zinc-400 group-hover:text-white"
                                   )}>{thread.participant.name}</span>
-                                  {thread.unread_count > 0 && <Badge className="h-4 px-1 text-[8px] bg-indigo-500 text-white font-black italic">{thread.unread_count}</Badge>}
+                                  {thread.unread_count > 0 && <Badge className="h-4 px-1 text-[10px] bg-indigo-500 text-white font-medium">{thread.unread_count}</Badge>}
                                </div>
                                {thread.last_message && (
-                                  <p className="text-[8px] text-zinc-700 font-bold truncate uppercase">{thread.last_message.content}</p>
+                                  <p className="text-[10px] text-zinc-700 font-normal truncate">{thread.last_message.content}</p>
                                )}
                             </div>
                          </div>
@@ -145,8 +145,8 @@ const ChatSidebar: React.FC<ChatSidebarProps> = ({ groups, dms, onNewGroup, onNe
                 {user?.avatar_url && <img src={user.avatar_url} className="w-full h-full object-cover" />}
              </div>
              <div className="flex flex-col">
-                <span className="text-[9px] font-black uppercase text-zinc-300 italic">{user?.name}</span>
-                <span className="text-[7px] font-bold text-zinc-600 uppercase tracking-widest">{user?.role}</span>
+                <span className="text-[11px] font-medium text-zinc-300">{user?.name}</span>
+                <span className="text-[10px] font-normal text-zinc-600">{user?.role}</span>
              </div>
           </div>
           <Settings size={14} className="text-zinc-700 group-hover:text-white transition-colors" />

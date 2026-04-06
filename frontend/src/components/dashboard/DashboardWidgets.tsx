@@ -42,7 +42,7 @@ const Badge = ({ children, variant = 'default', className }: { children: React.R
     info: 'bg-[#F97316]/20 text-[#F97316] border border-[#F97316]/30',
   };
   return (
-    <span className={cn("px-1.5 py-0.5 rounded-[1px] text-[10px] font-black uppercase tracking-widest", variants[variant], className)}>
+    <span className={cn("px-1.5 py-0.5 rounded-[1px] text-xs font-medium", variants[variant], className)}>
       {children}
     </span>
   );
@@ -73,23 +73,23 @@ export const ActiveTasksWidget = () => {
   const topTasks = allTasks.slice(0, 3);
 
   return (
-    <Link to="/tasks" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] hover:border-[#F97316]/50 transition-all font-mono min-h-[190px]">
+    <Link to="/tasks" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] hover:border-[#F97316]/50 transition-all min-h-[190px]">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">My Active Tasks</h3>
+        <h3 className="text-xs font-medium text-muted-foreground">My Active Tasks</h3>
         <Badge variant="info">{allTasks.length}</Badge>
       </div>
 
       <div className="space-y-4">
         {topTasks.length === 0 ? (
-          <p className="text-[10px] text-muted-foreground uppercase py-4">No active tasks found in uplink.</p>
+          <p className="text-xs text-muted-foreground py-4">No active tasks right now.</p>
         ) : (
           topTasks.map(task => (
             <div key={task.id} className="flex flex-col gap-1 border-l-2 border-[#2e2e2e] pl-3 group-hover:border-[#F97316]/30">
               <div className="flex justify-between items-start gap-3">
-                <span className="text-[11px] font-bold uppercase truncate">{task.name}</span>
+                <span className="text-xs font-medium truncate">{task.name}</span>
                 <Badge variant={task.priority === 'urgent' || task.priority === 'high' ? 'urgent' : 'default'}>{task.priority}</Badge>
               </div>
-              <div className="flex items-center gap-2 text-[9px] text-muted-foreground uppercase">
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                  <Clock size={10} /> {new Date(task.current_deadline).toLocaleDateString()}
               </div>
             </div>
@@ -97,8 +97,8 @@ export const ActiveTasksWidget = () => {
         )}
       </div>
 
-      <div className="mt-6 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-[#F97316] opacity-0 group-hover:opacity-100 transition-opacity">
-        <span>Access Task Database</span>
+      <div className="mt-6 flex items-center justify-between text-xs font-medium text-[#F97316] opacity-0 group-hover:opacity-100 transition-opacity">
+        <span>View All Tasks</span>
         <ArrowRight size={12} />
       </div>
     </Link>
@@ -126,24 +126,23 @@ export const CarryForwardWidget = () => {
   const isUrgent = count > 3;
 
   return (
-    <Link to="/tasks?filter=carry-forward" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] font-mono min-h-[190px]">
-       <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6">Today's Carry-Forwards</h3>
+    <Link to="/tasks?filter=carry-forward" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] min-h-[190px]">
+       <h3 className="text-xs font-medium text-muted-foreground mb-6">Tasks Pushed to Today</h3>
        <div className="flex items-baseline gap-4 mb-4">
          <span className={cn(
-           "text-5xl font-black tracking-tighter",
+           "text-5xl font-semibold",
            count > 0 ? (isUrgent ? "text-red-500" : "text-yellow-500") : "text-muted-foreground/30"
          )}>
            {count.toString().padStart(2, '0')}
          </span>
          <div className="flex flex-col gap-0.5">
            <Badge variant={count > 0 ? (isUrgent ? 'urgent' : 'warning') : 'default'}>
-              {isUrgent ? 'CRITICAL RELAY' : 'STATIONARY ALERT'}
+              {isUrgent ? 'CRITICAL' : 'NEEDS ATTENTION'}
            </Badge>
-           <span className="text-[9px] text-muted-foreground uppercase opacity-50">DEBT LOAD</span>
          </div>
        </div>
-       <p className="text-[10px] text-muted-foreground uppercase leading-relaxed">
-         Tasks persisting beyond established sprint cycles require immediate processing.
+       <p className="text-xs text-muted-foreground leading-relaxed">
+         These tasks missed their deadline and were moved to today.
        </p>
     </Link>
   );
@@ -169,19 +168,19 @@ export const MyFlagsWidget = () => {
     const allFlags = Array.isArray(flags) ? flags : [];
 
     return (
-      <Link to="/flags" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] font-mono min-h-[190px]">
-        <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6">My Flags</h3>
+      <Link to="/flags" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] min-h-[190px]">
+        <h3 className="text-xs font-medium text-muted-foreground mb-6">My Flags</h3>
         <div className="space-y-4">
             {allFlags.slice(0, 2).map(flag => (
                 <div key={flag.id} className="flex justify-between items-center py-2 border-b border-[#2e2e2e]/50">
                     <div className="flex flex-col">
-                        <span className="text-[10px] text-muted-foreground uppercase opacity-70">Task: {flag.task_title}</span>
-                        <span className="text-[11px] font-bold uppercase truncate max-w-[150px]">{flag.message}</span>
+                        <span className="text-xs text-muted-foreground opacity-70">Task: {flag.task_title}</span>
+                        <span className="text-xs font-medium truncate max-w-[150px]">{flag.message}</span>
                     </div>
                     <Badge variant={flag.status === 'resolved' ? 'success' : 'warning'}>{flag.status}</Badge>
                 </div>
             ))}
-            {allFlags.length === 0 && <p className="text-[10px] text-muted-foreground uppercase">Clear uplink. No active flags.</p>}
+            {allFlags.length === 0 && <p className="text-xs text-muted-foreground">No active flags.</p>}
         </div>
       </Link>
     );
@@ -216,24 +215,24 @@ export const TeamSummaryWidget = () => {
   if (isLoading) return <Skeleton className="h-48 w-full" />;
 
   return (
-    <div className="p-5 bg-[#1a1a1a] border border-[#2e2e2e] font-mono grid grid-cols-2 gap-4 min-h-[190px]">
+    <div className="p-5 bg-[#1a1a1a] border border-[#2e2e2e] grid grid-cols-2 gap-4 min-h-[190px]">
       <div className="col-span-2 flex justify-between items-center mb-2">
-         <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Team Summary</h3>
+         <h3 className="text-xs font-medium text-muted-foreground">Team Overview</h3>
          <ShieldAlert size={14} className="text-[#F97316]" />
       </div>
       
       <div className="p-3 bg-[#111] border border-[#2e2e2e]">
-          <div className="text-2xl font-black text-white">{summary?.activeCount}</div>
-          <div className="text-[9px] text-muted-foreground uppercase">ACTIVE</div>
+          <div className="text-2xl font-semibold text-white">{summary?.activeCount}</div>
+          <div className="text-[11px] text-muted-foreground">ACTIVE</div>
       </div>
       <div className="p-3 bg-[#111] border border-[#2e2e2e]">
-          <div className="text-2xl font-black text-[#F97316]">{summary?.inReviewCount}</div>
-          <div className="text-[9px] text-muted-foreground uppercase">IN REVIEW</div>
+          <div className="text-2xl font-semibold text-[#F97316]">{summary?.inReviewCount}</div>
+          <div className="text-[11px] text-muted-foreground">IN REVIEW</div>
       </div>
       <div className="p-3 bg-[#111] border border-[#2e2e2e] col-span-2 flex justify-between items-center border-l-orange-500 border-l-2">
           <div>
-            <div className="text-2xl font-black text-red-500">{summary?.overdueCount}</div>
-            <div className="text-[9px] text-muted-foreground uppercase">OVERDUE THRESHOLD</div>
+            <div className="text-2xl font-semibold text-red-500">{summary?.overdueCount}</div>
+            <div className="text-[11px] text-muted-foreground">OVERDUE</div>
           </div>
           <AlertCircle className="text-red-500 opacity-20" size={32} />
       </div>
@@ -261,24 +260,23 @@ export const FlaggedTasksWidget = () => {
   const count = allFlags.length;
 
   return (
-    <Link to="/flags" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] font-mono min-h-[190px]">
-      <h3 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground mb-6 text-right">Flagged Incidents</h3>
+    <Link to="/flags" className="block group p-5 bg-[#1a1a1a] border border-[#2e2e2e] min-h-[190px]">
+      <h3 className="text-xs font-medium text-muted-foreground mb-6 text-right">Flagged Tasks</h3>
       <div className="flex flex-row-reverse items-baseline gap-4 mb-4">
          <span className={cn(
-           "text-5xl font-black tracking-tighter",
+           "text-5xl font-semibold",
            count > 0 ? "text-[#F97316]" : "text-muted-foreground/30"
          )}>
            {count.toString().padStart(2, '0')}
          </span>
          <div className="flex flex-col items-end gap-0.5">
            <Badge variant={count > 0 ? 'warning' : 'default'} className="bg-orange-500/20 border-orange-500/30 text-orange-500">
-              PENDING REVIEW
+              WAITING FOR REVIEW
            </Badge>
-           <span className="text-[9px] text-muted-foreground uppercase opacity-50">NODE ALERT</span>
          </div>
       </div>
-      <p className="text-[10px] text-muted-foreground uppercase leading-relaxed text-right opacity-60">
-        Requires management intervention.
+      <p className="text-xs text-muted-foreground leading-relaxed text-right opacity-60">
+        Needs your decision.
       </p>
     </Link>
   );
@@ -305,24 +303,24 @@ export const EscalatedTasksWidget = () => {
   const allEscalated = Array.isArray(escalated) ? escalated : [];
 
   return (
-    <div className="p-5 bg-red-950/10 border border-red-900/50 font-mono col-span-1 md:col-span-2 lg:col-span-3">
+    <div className="p-5 bg-red-950/10 border border-red-900/50 col-span-1 md:col-span-2 lg:col-span-3">
       <div className="flex items-center gap-3 mb-6">
           <ShieldAlert className="text-red-500" size={20} />
-          <h3 className="text-sm font-black uppercase tracking-[0.3em] text-red-500">High-Level Escalations</h3>
+          <h3 className="text-sm font-semibold text-red-500">Escalations</h3>
           <div className="h-[1px] flex-1 bg-red-500/20" />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
          {allEscalated.slice(0, 3).map(task => (
            <div key={task.id} className="p-3 bg-red-950/20 border border-red-900/30 flex flex-col gap-2 relative overflow-hidden">
-              <span className="text-[11px] font-black uppercase truncate">{task.name}</span>
+              <span className="text-xs font-medium truncate">{task.name}</span>
               <div className="flex gap-2">
-                 {task.carry_forward_count >= 3 && <Badge variant="urgent">CYCLE BREACH ({task.carry_forward_count})</Badge>}
+                 {task.carry_forward_count >= 3 && <Badge variant="urgent">PUSHED {task.carry_forward_count}× </Badge>}
                  {task.flag_count > 0 && <Badge variant="urgent">FLAGGED</Badge>}
               </div>
            </div>
          ))}
-         {allEscalated.length === 0 && <p className="text-[10px] text-red-500 uppercase font-black opacity-40">Zero critical failures detected.</p>}
+         {allEscalated.length === 0 && <p className="text-xs text-red-500 font-medium opacity-40">No escalations right now.</p>}
       </div>
     </div>
   );

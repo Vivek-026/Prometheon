@@ -65,12 +65,12 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClo
       
       <div className="flex flex-col gap-1 flex-1 min-w-0">
         <div className="flex justify-between items-start gap-2">
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#F97316] leading-none">{notification.title}</span>
-          <span className="text-[8px] text-zinc-600 font-bold uppercase italic shrink-0">
+          <span className="text-xs font-medium text-[#F97316] leading-none">{notification.title}</span>
+          <span className="text-xs text-zinc-600 font-bold shrink-0">
             {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
           </span>
         </div>
-        <p className="text-[11px] text-zinc-400 leading-tight line-clamp-2">{notification.body}</p>
+        <p className="text-xs text-zinc-400 leading-tight line-clamp-2">{notification.body}</p>
         {!notification.is_read && (
           <div className="absolute right-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[#F97316] shadow-[0_0_8px_rgba(249,115,22,0.5)]" />
         )}

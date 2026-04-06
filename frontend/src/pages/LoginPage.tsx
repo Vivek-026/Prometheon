@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#111111] font-mono p-4">
+        <div className="min-h-screen flex items-center justify-center bg-[#111111] p-4">
             <div className="w-full max-w-md">
                 {/* Brand / Logo */}
                 <div className="mb-8 flex flex-col items-center">
@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
                             Prometheon
                         </h1>
                     </div>
-                    <p className="text-muted-foreground text-xs uppercase tracking-widest font-semibold">
+                    <p className="text-muted-foreground text-xs font-semibold">
                         [INTERNAL PROJECT MANAGEMENT]
                     </p>
                 </div>
@@ -90,7 +90,7 @@ const LoginPage: React.FC = () => {
                     <form onSubmit={handleSubmit} className="p-8 space-y-6">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1 tracking-widest flex items-center gap-1.5">
+                                <label className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-1.5">
                                     <Mail size={10} /> ACCESS IDENTIFIER / EMAIL
                                 </label>
                                 <Input 
@@ -104,7 +104,7 @@ const LoginPage: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] uppercase font-bold text-muted-foreground ml-1 tracking-widest flex items-center gap-1.5">
+                                <label className="text-xs font-medium text-muted-foreground ml-1 flex items-center gap-1.5">
                                     <Lock size={10} /> ENCRYPTION KEY / PASSWORD
                                 </label>
                                 <Input 
@@ -119,7 +119,7 @@ const LoginPage: React.FC = () => {
                         </div>
 
                         {error && (
-                            <div className="flex items-center gap-2 p-3 text-[11px] bg-red-950/20 border border-red-900/50 text-red-500 uppercase font-bold animate-pulse">
+                            <div className="flex items-center gap-2 p-3 text-xs bg-red-950/20 border border-red-900/50 text-red-500 font-bold animate-pulse">
                                 <AlertTriangle size={14} /> {error}
                             </div>
                         )}
@@ -132,7 +132,7 @@ const LoginPage: React.FC = () => {
                             Establish Connection
                         </Button>
 
-                        <div className="pt-4 border-t border-[#2e2e2e]/50 flex justify-between items-center text-[9px] text-muted-foreground uppercase tracking-widest group-hover:text-muted/60 transition-colors">
+                        <div className="pt-4 border-t border-[#2e2e2e]/50 flex justify-between items-center text-[11px] text-muted-foreground group-hover:text-muted/60 transition-colors">
                             <span>REVISION: V0.8.2-BETA</span>
                             <span className="flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-500/80 shadow-[0_0_8px_rgba(34,197,94,0.5)] animate-pulse" />

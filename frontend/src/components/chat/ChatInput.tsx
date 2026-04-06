@@ -85,9 +85,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend, onTyping, replyTo, onCanc
          <div className="flex items-center justify-between p-2 bg-[#1a1a1a] border border-[#F97316]/30 rounded-sm animate-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center gap-3">
                <CornerUpRight size={14} className="text-[#F97316]" />
-               <div className="text-[10px] uppercase font-bold tracking-tighter">
+               <div className="text-xs font-normal">
                   <span className="text-zinc-500">Replying to </span>
-                  <span className="text-white font-black italic">{replyTo.sender.name}</span>
+                  <span className="text-white font-medium">{replyTo.sender.name}</span>
                </div>
             </div>
             <button onClick={onCancelReply} className="text-zinc-600 hover:text-white transition-colors"><X size={14} /></button>
@@ -103,8 +103,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend, onTyping, replyTo, onCanc
               <Paperclip size={16} className="text-zinc-600" />
             )}
             <div className="flex flex-col gap-0.5 pr-4">
-               <span className="text-[9px] font-black uppercase text-zinc-300 truncate w-32">{file.name}</span>
-               <span className="text-[8px] text-zinc-600">{(file.size / 1024).toFixed(1)} KB</span>
+               <span className="text-[11px] font-medium text-zinc-300 truncate w-32">{file.name}</span>
+               <span className="text-[10px] text-zinc-600">{(file.size / 1024).toFixed(1)} KB</span>
             </div>
             <button onClick={() => { setFile(null); setFilePreview(null); }} className="text-zinc-600 hover:text-red-500"><X size={12} /></button>
          </div>
@@ -145,7 +145,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend, onTyping, replyTo, onCanc
              <Button 
                size="sm" 
                onClick={handleSubmit}
-               className="h-7 px-4 bg-[#F97316] hover:bg-[#F97316]/90 text-black font-black uppercase text-[9px] tracking-widest gap-2 italic rounded-none"
+               className="h-7 px-4 bg-[#F97316] hover:bg-[#F97316]/90 text-black font-semibold text-[11px] gap-2 rounded-none"
              >
                 SEND <SendHorizonal size={12} />
              </Button>

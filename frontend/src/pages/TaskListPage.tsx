@@ -61,7 +61,7 @@ const TaskBadge = ({ children, variant = 'default' }: { children: React.ReactNod
     urgent: 'bg-red-900/20 text-red-500 border-red-800/50',
   };
   return (
-    <span className={cn("px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border", variants[variant] || variants.default)}>
+    <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium border", variants[variant] || variants.default)}>
       {children}
     </span>
   );
@@ -135,23 +135,23 @@ const TaskListPage: React.FC = () => {
     };
 
     return (
-        <div className="flex bg-[#111111] min-h-screen font-mono">
+        <div className="flex bg-[#111111] min-h-screen">
             <Sidebar />
 
-            <main className="flex-1 ml-64 p-8">
+            <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8">
                 <header className="mb-10 flex flex-col gap-6">
-                   <PageHeader title="Mission Operations" subtitle="Task Registry" />
+                   <PageHeader title="Tasks" subtitle="All tasks across the team" />
                    
-                   <div className="flex justify-between items-end -mt-10">
+                   <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 -mt-4 md:-mt-10">
                       <div className="space-y-1">
-                          <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold">NODE DATABASE ACCESS / ALL SECTORS</p>
+                          <p className="hidden md:block text-xs text-muted-foreground font-medium">Showing all tasks</p>
                       </div>
 
                       {canCreateTask && (
                           <Link to="/tasks/new">
-                              <Button className="h-10 px-6 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-black flex gap-2">
+                              <Button className="h-10 px-6 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-semibold flex gap-2">
                                   <Plus size={16} strokeWidth={3} />
-                                  ESTABLISH NEW TASK
+                                  New Task
                               </Button>
                           </Link>
                       )}
@@ -159,13 +159,13 @@ const TaskListPage: React.FC = () => {
                 </header>
 
                 {/* Filter Bar */}
-                <div className="bg-[#1a1a1a] border border-[#2e2e2e] p-4 mb-8 flex flex-wrap items-center gap-4">
-                    <div className="relative flex-1 min-w-[250px]">
+                <div className="bg-[#1a1a1a] border border-[#2e2e2e] p-4 mb-8 flex flex-col md:flex-row md:flex-wrap items-stretch md:items-center gap-4">
+                    <div className="relative flex-1 min-w-0 w-full md:min-w-[250px] md:flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
                         <Input 
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="SEARCH BY TASK IDENTIFIER..." 
+                            placeholder="Search tasks..." 
                             className="pl-10 bg-[#111] border-[#2e2e2e] h-10 rounded-none focus-visible:ring-[#F97316]"
                         />
                     </div>
@@ -175,7 +175,7 @@ const TaskListPage: React.FC = () => {
                         <select 
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value as any)}
-                            className="bg-[#111] border border-[#2e2e2e] text-[10px] font-black uppercase tracking-widest px-3 h-10 outline-none focus:border-[#F97316] text-white cursor-pointer"
+                            className="bg-[#111] border border-[#2e2e2e] text-xs font-medium px-3 h-10 outline-none focus:border-[#F97316] text-white cursor-pointer"
                         >
                             <option value="all">ALL STATUSES</option>
                             <option value="pending">PENDING</option>
@@ -185,10 +185,10 @@ const TaskListPage: React.FC = () => {
                             <option value="flagged">FLAGGED</option>
                         </select>
 
-                        <select 
+                        <select
                              value={priorityFilter}
                              onChange={(e) => setPriorityFilter(e.target.value as any)}
-                             className="bg-[#111] border border-[#2e2e2e] text-[10px] font-black uppercase tracking-widest px-3 h-10 outline-none focus:border-[#F97316] text-white cursor-pointer"
+                             className="bg-[#111] border border-[#2e2e2e] text-xs font-medium px-3 h-10 outline-none focus:border-[#F97316] text-white cursor-pointer"
                         >
                             <option value="all">ALL PRIORITIES</option>
                             <option value="low">LOW</option>
@@ -205,8 +205,8 @@ const TaskListPage: React.FC = () => {
                 ) : filteredTasks.length === 0 ? (
                     <div className="h-64 flex flex-col items-center justify-center border-2 border-dashed border-[#2e2e2e] opacity-40">
                          <AlertCircle size={48} className="mb-4" />
-                         <span className="text-sm font-black uppercase">No tasks match your filters</span>
-                         <span className="text-[10px] uppercase mt-1 tracking-widest">QUERY RETURNED NULL RESULT</span>
+                         <span className="text-sm font-semibold">No tasks match your filters</span>
+                         <span className="text-xs mt-1">Try adjusting your search or filters</span>
                     </div>
                 ) : (
                     <div className="space-y-4">
@@ -222,21 +222,21 @@ const TaskListPage: React.FC = () => {
                                     {/* Info Selection */}
                                     <div className="flex-1 space-y-2">
                                         <div className="flex items-center gap-3">
-                                            <h3 className="text-sm font-black uppercase tracking-tight">{task.name}</h3>
+                                            <h3 className="text-sm font-semibold">{task.name}</h3>
                                             <TaskBadge variant={task.priority as any}>{task.priority}</TaskBadge>
                                             {task.flag_count > 0 && <Flag size={14} className="text-red-500" />}
                                             {task.tags?.map(tag => (
-                                                <span key={tag} className="flex items-center gap-1 text-[9px] text-[#F97316]/60 font-bold uppercase tracking-widest bg-orange-500/5 px-1.5 py-0.5 border border-orange-500/10">
+                                                <span key={tag} className="flex items-center gap-1 text-[11px] text-[#F97316]/60 font-medium bg-orange-500/5 px-1.5 py-0.5 border border-orange-500/10">
                                                     <TagIcon size={8} /> {tag}
                                                 </span>
                                             ))}
                                         </div>
-                                        <div className="flex items-center gap-4 text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                                        <div className="flex items-center gap-4 text-xs text-muted-foreground font-medium">
                                             <span className={cn("flex items-center gap-1.5", getDeadlineColor(task.current_deadline))}>
                                                 <Clock size={12} /> DUE {safeFormatDate(task.current_deadline)}
                                             </span>
                                             <span className="opacity-30">|</span>
-                                            <span className="flex items-center gap-1.5">
+                                            <span className="hidden md:inline flex items-center gap-1.5">
                                                 ID: {task.id.toUpperCase()}
                                             </span>
                                         </div>
@@ -249,10 +249,10 @@ const TaskListPage: React.FC = () => {
                                             <div className="flex gap-2">
                                                 {task.carry_forward_count > 0 && (
                                                     <span className={cn(
-                                                        "text-[9px] font-black px-1.5 py-0.5 uppercase tracking-tighter",
+                                                        "text-[11px] font-medium px-1.5 py-0.5",
                                                         task.is_frozen ? "bg-red-500 text-white" : "bg-yellow-500 text-black"
                                                     )}>
-                                                        {task.is_frozen ? "FROZEN" : `CF X${task.carry_forward_count}`}
+                                                        {task.is_frozen ? "FROZEN" : `Pushed ×${task.carry_forward_count}`}
                                                     </span>
                                                 )}
                                             </div>
@@ -269,13 +269,13 @@ const TaskListPage: React.FC = () => {
                                                     {assignee.avatar_url ? (
                                                         <img src={assignee.avatar_url} alt={assignee.name} className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <span className="text-[10px] font-black">{assignee.name.charAt(0)}</span>
+                                                        <span className="text-xs font-medium">{assignee.name.charAt(0)}</span>
                                                     )}
                                                 </div>
                                             ))}
                                             {task.assignees?.length > 3 && (
                                                 <div className="w-8 h-8 rounded-full border-2 border-[#1a1a1a] bg-[#333] flex items-center justify-center -ml-2 z-10">
-                                                    <span className="text-[9px] font-black">+{task.assignees.length - 3}</span>
+                                                    <span className="text-[11px] font-medium">+{task.assignees.length - 3}</span>
                                                 </div>
                                             )}
                                         </div>

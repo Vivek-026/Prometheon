@@ -127,12 +127,12 @@ const TaskDetailPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex bg-[#111111] min-h-screen font-mono">
+      <div className="flex bg-[#111111] min-h-screen">
         <Sidebar />
-        <main className="flex-1 ml-64 p-8 flex items-center justify-center">
+        <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-12 h-12 border-4 border-[#F97316] border-t-transparent rounded-full animate-spin" />
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F97316]">Retrieving Node Data...</p>
+            <p className="text-xs font-medium text-[#F97316]">Loading task...</p>
           </div>
         </main>
       </div>
@@ -141,15 +141,15 @@ const TaskDetailPage: React.FC = () => {
 
   if (error || !task) {
     return (
-      <div className="flex bg-[#111111] min-h-screen font-mono">
+      <div className="flex bg-[#111111] min-h-screen">
         <Sidebar />
-        <main className="flex-1 ml-64 p-8 flex flex-col items-center justify-center">
+        <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 flex flex-col items-center justify-center">
           <AlertCircle size={48} className="text-red-500 mb-4" />
-          <h2 className="text-xl font-black uppercase italic mb-2">Access Denied / Not Found</h2>
-          <p className="text-[10px] text-muted-foreground uppercase mb-6 tracking-widest">Failed to initialize data stream</p>
+          <h2 className="text-xl font-semibold mb-2">Task Not Found</h2>
+          <p className="text-xs text-muted-foreground mb-6">Could not load this task</p>
           <Link to="/tasks">
-            <Button className="bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-none font-black px-8">
-              RETURN TO REGISTRY
+            <Button className="bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-none font-semibold px-8">
+              Back to Tasks
             </Button>
           </Link>
         </main>
@@ -198,23 +198,23 @@ const TaskDetailPage: React.FC = () => {
   };
 
   return (
-    <div className="flex bg-[#111111] min-h-screen font-mono selection:bg-[#F97316] selection:text-black">
+    <div className="flex bg-[#111111] min-h-screen selection:bg-[#F97316] selection:text-black">
       <Sidebar />
 
-      <main className="flex-1 ml-64 p-8 pb-32">
+      <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 pb-32">
         {/* Navigation Breadcrumb */}
-        <div className="mb-10">
+        <div className="mb-6 md:mb-10 pt-10 md:pt-0">
           <Link to="/tasks" className="inline-flex items-center gap-2 group">
             <div className="p-1 bg-[#1a1a1a] border border-[#2e2e2e] group-hover:bg-[#F97316] group-hover:text-black transition-colors">
               <ChevronLeft size={16} strokeWidth={3} />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground group-hover:text-white transition-colors">
-              Node Database / Registry Index
+            <span className="text-xs font-medium text-muted-foreground group-hover:text-white transition-colors">
+              Back to Tasks
             </span>
           </Link>
         </div>
 
-        <div className="flex gap-10">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-10">
           {/* LEFT COLUMN: PRIMARY WORKSPACE */}
           <div className="flex-1 max-w-4xl space-y-12">
             
@@ -222,7 +222,7 @@ const TaskDetailPage: React.FC = () => {
             <section className="space-y-6">
               <div className="relative">
                 <div className="absolute -left-6 top-0 bottom-0 w-1 bg-[#F97316]" />
-                <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter italic leading-none mb-4">
+                <h1 className="text-2xl md:text-4xl lg:text-5xl font-semibold leading-none mb-4">
                   {task.name}
                 </h1>
                 
@@ -231,15 +231,15 @@ const TaskDetailPage: React.FC = () => {
                   <Badge variant={task.priority as any}>{task.priority}</Badge>
                   <Separator orientation="vertical" className="h-4 bg-[#2e2e2e]" />
                   {task.tags?.map(tag => (
-                    <span 
-                      key={tag} 
-                      className="text-[10px] font-bold text-[#F97316]/60 bg-[#F97316]/5 border border-[#F97316]/10 px-2 py-0.5 uppercase tracking-widest"
+                    <span
+                      key={tag}
+                      className="text-xs font-medium text-[#F97316]/60 bg-[#F97316]/5 border border-[#F97316]/10 px-2 py-0.5"
                     >
                       # {tag}
                     </span>
                   ))}
                   {task.flag_count > 0 && (
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-red-900/20 text-red-500 border border-red-500/30 text-[10px] font-black uppercase italic">
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 bg-red-900/20 text-red-500 border border-red-500/30 text-xs font-medium">
                        <Flag size={12} fill="currentColor" /> {task.flag_count} FLAGS
                     </div>
                   )}
@@ -250,13 +250,13 @@ const TaskDetailPage: React.FC = () => {
             {/* 2. Description (Markdown) */}
             <section className="bg-[#1a1a1a] border border-[#2e2e2e] p-8 relative overflow-hidden group">
                {/* Industrial Background pattern */}
-              <div className="absolute top-0 right-0 p-1 opacity-5 select-none pointer-events-none text-[80px] font-black italic">DESC</div>
+              <div className="absolute top-0 right-0 p-1 opacity-5 select-none pointer-events-none text-[80px] font-semibold">DESC</div>
               
               <div className="prose prose-invert prose-orange max-w-none prose-sm font-sans">
                 {task.description ? (
                   <ReactMarkdown>{task.description}</ReactMarkdown>
                 ) : (
-                  <p className="italic text-muted-foreground font-mono uppercase text-[10px] tracking-widest">No detailed documentation provided for this node.</p>
+                  <p className="text-muted-foreground text-xs">No description provided.</p>
                 )}
               </div>
             </section>
@@ -266,10 +266,10 @@ const TaskDetailPage: React.FC = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <div className="h-4 w-1 bg-[#F97316]" />
-                  <h2 className="text-[12px] font-black uppercase tracking-[0.2em] italic">📎 Task Briefing</h2>
+                  <h2 className="text-[12px] font-medium">📎 Task Brief</h2>
                 </div>
                 {isManager && (
-                  <Button variant="outline" className="h-8 px-4 rounded-none border-[#2e2e2e] text-[10px] font-black uppercase tracking-widest hover:bg-[#F97316] hover:text-black hover:border-transparent transition-all">
+                  <Button variant="outline" className="h-8 px-4 rounded-none border-[#2e2e2e] text-xs font-medium hover:bg-[#F97316] hover:text-black hover:border-transparent transition-all">
                     Update Brief
                   </Button>
                 )}
@@ -285,18 +285,18 @@ const TaskDetailPage: React.FC = () => {
                              task.task_brief.mime_type.includes('pdf') ? <FileText size={24} /> : <Paperclip size={24} />}
                           </div>
                           <div>
-                            <p className="text-sm font-black uppercase tracking-tight">{task.task_brief.auto_name}</p>
-                            <p className="text-[10px] text-muted-foreground uppercase font-bold">{task.task_brief.mime_type} • SECTOR CLASSIFIED</p>
+                            <p className="text-sm font-semibold">{task.task_brief.auto_name}</p>
+                            <p className="text-xs text-muted-foreground font-medium">{task.task_brief.mime_type} • SECTOR CLASSIFIED</p>
                           </div>
                        </div>
-                       <Button className="h-9 px-6 bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-none font-black flex gap-2">
+                       <Button className="h-9 px-6 bg-[#F97316] text-black hover:bg-[#F97316]/90 rounded-none font-semibold flex gap-2">
                           <Download size={16} /> DOWNLOAD
                        </Button>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center py-6 text-muted-foreground opacity-40">
                        <ShieldQuestion size={32} className="mb-2" />
-                       <p className="text-[10px] uppercase font-bold tracking-widest">No brief uploaded for this terminal</p>
+                       <p className="text-xs font-medium">No brief uploaded yet</p>
                     </div>
                   )}
                 </CardContent>
@@ -308,14 +308,14 @@ const TaskDetailPage: React.FC = () => {
                <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-4 w-1 bg-blue-500" />
-                  <h2 className="text-[12px] font-black uppercase tracking-[0.2em] italic">📁 Progress Stream</h2>
+                  <h2 className="text-[12px] font-medium">📁 Progress & Updates</h2>
                 </div>
                 {(isAssignee || isManager) && (
                   <Button 
                     onClick={() => setIsAddProgressOpen(true)}
-                    className="h-9 px-6 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-none font-black flex gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all transform hover:-translate-y-0.5"
+                    className="h-9 px-6 bg-blue-600 hover:bg-blue-700 text-white border-none rounded-none font-semibold flex gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] transition-all transform hover:-translate-y-0.5"
                   >
-                    <Plus size={16} strokeWidth={3} /> ADD PROGRESS
+                    <Plus size={16} strokeWidth={3} /> Add Update
                   </Button>
                 )}
               </div>
@@ -330,7 +330,7 @@ const TaskDetailPage: React.FC = () => {
                           {entry.uploaded_by.avatar_url ? (
                             <img src={entry.uploaded_by.avatar_url} alt={entry.uploaded_by.name} className="w-full h-full object-cover" />
                           ) : (
-                            <span className="text-[10px] font-black">{entry.uploaded_by.name.charAt(0)}</span>
+                            <span className="text-xs font-medium">{entry.uploaded_by.name.charAt(0)}</span>
                           )}
                         </div>
                         <div className="flex-1 w-[1px] bg-[#2e2e2e] my-1" />
@@ -341,9 +341,9 @@ const TaskDetailPage: React.FC = () => {
                         <div className="px-4 py-2 bg-[#111]/50 border-b border-[#2e2e2e] flex items-center justify-between">
                            <div className="flex items-center gap-3">
                              <span className="text-[#F97316]"><ProgressEntryIcon type={entry.entry_type} /></span>
-                             <span className="text-[10px] font-black uppercase tracking-widest">{entry.entry_type.replace('_', ' ')}</span>
+                             <span className="text-xs font-medium">{entry.entry_type.replace('_', ' ')}</span>
                            </div>
-                           <span className="text-[9px] text-muted-foreground font-bold uppercase">
+                           <span className="text-[11px] text-muted-foreground font-medium">
                              {safeFormatDistance(entry.created_at)} ago
                            </span>
                         </div>
@@ -359,7 +359,7 @@ const TaskDetailPage: React.FC = () => {
                           )}
 
                           {entry.entry_type === 'code_snippet' && entry.content && (
-                            <pre className="mt-4 p-4 bg-black border border-[#2e2e2e] overflow-x-auto text-[11px] text-green-500/80 font-mono scrollbar-thin scrollbar-thumb-zinc-800">
+                            <pre className="mt-4 p-4 bg-black border border-[#2e2e2e] overflow-x-auto text-xs text-green-500/80 font-mono scrollbar-thin scrollbar-thumb-zinc-800">
                               <code>{entry.content}</code>
                             </pre>
                           )}
@@ -382,7 +382,7 @@ const TaskDetailPage: React.FC = () => {
                 ) : (
                   <div className="h-40 flex flex-col items-center justify-center border-2 border-dashed border-[#2e2e2e] rounded-sm opacity-30">
                     <History size={32} className="mb-2" />
-                    <p className="text-[10px] uppercase font-black tracking-widest">Timeline Empty / Waiting for Uplink</p>
+                    <p className="text-xs font-medium">No updates yet</p>
                   </div>
                 )}
               </div>
@@ -390,14 +390,14 @@ const TaskDetailPage: React.FC = () => {
           </div>
 
           {/* RIGHT SIDEBAR: SPECS & CONTROL */}
-          <aside className="w-80 space-y-6">
-            <div className="sticky top-8 space-y-6">
+          <aside className="w-full lg:w-80 space-y-6">
+            <div className="lg:sticky lg:top-8 space-y-6">
               
               {/* Mark as Completed - Admin/Manager only when in_review */}
               {isManager && task.status === 'in_review' && (
                 <Button 
                   onClick={() => statusMutation.mutate('completed')}
-                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-none border-none font-black italic shadow-[0_0_20px_rgba(22,163,74,0.3)] animate-pulse"
+                  className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-none border-none font-semibold shadow-[0_0_20px_rgba(22,163,74,0.3)] animate-pulse"
                 >
                   <CheckCircle2 className="mr-2" size={18} /> MARK AS COMPLETED
                 </Button>
@@ -409,9 +409,9 @@ const TaskDetailPage: React.FC = () => {
                    {task.status === 'pending' && (
                      <Button 
                        onClick={() => statusMutation.mutate('in_progress')}
-                       className="w-full h-12 bg-[#F97316] hover:bg-[#F97316]/90 text-black rounded-none border-none font-black italic shadow-[0_0_20px_rgba(249,115,22,0.3)]"
+                       className="w-full h-12 bg-[#F97316] hover:bg-[#F97316]/90 text-black rounded-none border-none font-semibold shadow-[0_0_20px_rgba(249,115,22,0.3)]"
                      >
-                        INITIALIZE TASK / START
+                        START TASK
                      </Button>
                    )}
                    {task.status === 'in_progress' && (
@@ -423,7 +423,7 @@ const TaskDetailPage: React.FC = () => {
                          }
                          statusMutation.mutate('in_review');
                        }}
-                       className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-none border-none font-black italic"
+                       className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white rounded-none border-none font-semibold"
                      >
                         SUBMIT FOR REVIEW
                      </Button>
@@ -434,22 +434,22 @@ const TaskDetailPage: React.FC = () => {
               {/* Deadline & Chrono */}
               <Card>
                 <CardHeader className="pb-3 px-4 pt-4 border-b border-[#2e2e2e]">
-                  <CardTitle className="text-[11px] text-zinc-500">TEMPORAL CONSTRAINTS</CardTitle>
+                  <CardTitle className="text-xs text-zinc-500">DEADLINES</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
                   <div className="space-y-1">
-                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">ORIGINAL QUOTA</p>
+                    <p className="text-[11px] font-medium text-muted-foreground">ORIGINAL DEADLINE</p>
                     <p className="text-xs font-bold text-zinc-400">{safeFormatDate(task.original_deadline, 'PPpp')}</p>
                   </div>
                   
                   <div className="space-y-1">
-                    <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">CURRENT TERMINAL</p>
-                    <p className={cn("text-sm font-black italic", getDeadlineColor(task.current_deadline))}>
+                    <p className="text-[11px] font-medium text-muted-foreground">CURRENT DEADLINE</p>
+                    <p className={cn("text-sm font-semibold", getDeadlineColor(task.current_deadline))}>
                       {safeFormatDate(task.current_deadline, 'PPpp')}
                     </p>
                     {task.current_deadline !== task.original_deadline && (
-                      <div className="inline-block mt-1 px-1.5 py-0.5 bg-orange-500/10 text-orange-500 text-[8px] font-black uppercase tracking-tighter border border-orange-500/20">
-                        TIMELINE DRIFT DETECTED
+                      <div className="inline-block mt-1 px-1.5 py-0.5 bg-orange-500/10 text-orange-500 text-[10px] font-medium border border-orange-500/20">
+                        DEADLINE CHANGED
                       </div>
                     )}
                   </div>
@@ -458,15 +458,15 @@ const TaskDetailPage: React.FC = () => {
                     <>
                       <Separator className="bg-[#2e2e2e]" />
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                        <div className="flex justify-between items-center text-xs font-medium">
                           <span className="text-zinc-500">CARRY FORWARD</span>
                           <span className="text-yellow-500">X{task.carry_forward_count}</span>
                         </div>
                         <div className="max-h-24 overflow-y-auto pr-2 custom-scrollbar">
                            {task.carry_forward_logs?.slice().reverse().map(log => (
                              <div key={log.id} className="mb-2 last:mb-0 border-l-2 border-yellow-500/30 pl-2 py-0.5">
-                               <p className="text-[9px] font-bold text-zinc-400 truncate">{log.reason}</p>
-                               <p className="text-[8px] text-zinc-600 font-bold">{safeFormatDate(log.created_at, 'dd MMM yyyy')}</p>
+                               <p className="text-[11px] font-normal text-zinc-400 truncate">{log.reason}</p>
+                               <p className="text-[10px] text-zinc-600 font-normal">{safeFormatDate(log.created_at, 'dd MMM yyyy')}</p>
                              </div>
                            ))}
                         </div>
@@ -479,7 +479,7 @@ const TaskDetailPage: React.FC = () => {
               {/* Assignees */}
               <Card>
                 <CardHeader className="pb-3 px-4 pt-4 border-b border-[#2e2e2e]">
-                  <CardTitle className="text-[11px] text-zinc-500">NODE OPERATIVES</CardTitle>
+                  <CardTitle className="text-xs text-zinc-500">ASSIGNED TO</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4 space-y-4">
                   <div className="space-y-3">
@@ -494,12 +494,12 @@ const TaskDetailPage: React.FC = () => {
                             )}
                           </div>
                           <div>
-                            <p className="text-[11px] font-black uppercase tracking-tight text-zinc-300">{assignee.name}</p>
-                            <p className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">{assignee.role}</p>
+                            <p className="text-[11px] font-medium text-zinc-300">{assignee.name}</p>
+                            <p className="text-[11px] text-zinc-600 font-normal">{assignee.role}</p>
                           </div>
                         </div>
                         {assignee.contribution_pct !== undefined && (
-                          <div className="text-[10px] font-black text-[#F97316] italic">{assignee.contribution_pct}%</div>
+                          <div className="text-xs font-medium text-[#F97316]">{assignee.contribution_pct}%</div>
                         )}
                       </div>
                     ))}
@@ -510,20 +510,20 @@ const TaskDetailPage: React.FC = () => {
               {/* Linked Documents */}
               <Card>
                 <CardHeader className="pb-3 px-4 pt-4 border-b border-[#2e2e2e]">
-                  <CardTitle className="text-[11px] text-zinc-500">LINKED ASSETS</CardTitle>
+                  <CardTitle className="text-xs text-zinc-500">LINKED DOCUMENTS</CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
                   {task.linked_documents && task.linked_documents?.length > 0 ? (
                     <div className="space-y-2">
                        {task.linked_documents.map(doc => (
-                         <Link key={doc.id} to={`/documents/${doc.id}`} className="flex items-center gap-2 text-[10px] font-bold text-blue-400 hover:text-blue-300 uppercase tracking-widest truncate group">
+                         <Link key={doc.id} to={`/documents/${doc.id}`} className="flex items-center gap-2 text-xs font-medium text-blue-400 hover:text-blue-300 truncate group">
                            <LinkIcon size={10} className="group-hover:rotate-45 transition-transform" />
                            <span className="truncate">{doc.auto_name}</span>
                          </Link>
                        ))}
                     </div>
                   ) : (
-                    <p className="text-[9px] text-zinc-600 font-bold uppercase italic text-center">No assets indexed</p>
+                    <p className="text-[11px] text-zinc-600 font-normal text-center">No documents linked yet</p>
                   )}
                 </CardContent>
               </Card>
@@ -531,22 +531,22 @@ const TaskDetailPage: React.FC = () => {
               {/* Flags & Roadblocks */}
               <div className="pt-2">
                 <div className="flex items-center justify-between mb-2 px-1">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">INCIDENT STATE</span>
-                  <span className={cn("text-[10px] font-black", task.flag_count > 0 ? "text-red-500" : "text-green-500")}>
-                    {task.flag_count} ACTIVE FLAGS
+                  <span className="text-xs font-medium text-zinc-500">FLAG STATUS</span>
+                  <span className={cn("text-xs font-medium", task.flag_count > 0 ? "text-red-500" : "text-green-500")}>
+                    {task.flag_count > 0 ? 'Has active flag' : 'No flags'}
                   </span>
                 </div>
                 {isAssignee && (task.status === 'pending' || task.status === 'in_progress') && (
                   <Button 
                     onClick={() => setIsFlagModalOpen(true)}
                     variant="outline" 
-                    className="w-full border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-none font-black italic uppercase text-[10px] transition-all"
+                    className="w-full border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white rounded-none font-semibold text-xs transition-all"
                   >
-                    RAISE OPERATIONAL FLAG!!
+                    RAISE FLAG
                   </Button>
                 )}
                 {task.status === 'flagged' && (
-                   <div className="px-3 py-2 bg-red-900/10 border border-red-500/30 text-red-500 text-[10px] font-black uppercase italic text-center">
+                   <div className="px-3 py-2 bg-red-900/10 border border-red-500/30 text-red-500 text-xs font-medium text-center">
                      PENDING FLAG REVIEW
                    </div>
                 )}
@@ -624,18 +624,18 @@ const AddProgressModal = ({ isOpen, onClose, taskId }: { isOpen: boolean, onClos
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl bg-[#161616] border-[#2e2e2e]">
         <DialogHeader className="border-b border-[#2e2e2e] pb-4 mb-4">
-          <DialogTitle>Uplink Progress Data</DialogTitle>
-          <DialogDescription>Submit verified documentation to task timeline</DialogDescription>
+          <DialogTitle>Add Progress Update</DialogTitle>
+          <DialogDescription>Attach evidence or notes to this task</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-[#F97316]">Protocol Type</label>
+              <label className="text-xs font-medium text-[#F97316]">Type</label>
               <select 
                 value={type}
                 onChange={(e) => setType(e.target.value as any)}
-                className="w-full bg-[#111] border border-[#2e2e2e] text-xs font-bold uppercase p-2.5 outline-none focus:border-[#F97316] text-white"
+                className="w-full bg-[#111] border border-[#2e2e2e] text-xs font-normal p-2.5 outline-none focus:border-[#F97316] text-white"
               >
                 <option value="text_note">Text Note</option>
                 <option value="screenshot">Screenshot (JPG/PNG)</option>
@@ -647,23 +647,23 @@ const AddProgressModal = ({ isOpen, onClose, taskId }: { isOpen: boolean, onClos
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 italic flex items-center justify-between">
-                <span>Hub Synchronize</span>
+              <label className="text-xs font-medium text-zinc-500 flex items-center justify-between">
+                <span>Save to Document Hub</span>
                 <input type="checkbox" checked={saveToHub} onChange={e => setSaveToHub(e.target.checked)} className="accent-[#F97316]" />
               </label>
-              <div className="text-[9px] text-zinc-600 bg-[#111] p-2 border border-[#2e2e2e] h-[42px] flex items-center">
-                INDEX TO GLOBAL REPOSITORY ON SUCCESS
+              <div className="text-[11px] text-zinc-600 bg-[#111] p-2 border border-[#2e2e2e] h-[42px] flex items-center">
+                Also save this file to the Document Hub
               </div>
             </div>
           </div>
 
           {(type === 'screenshot' || type === 'document') && (
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Payload Selection</label>
+              <label className="text-xs font-medium text-zinc-500">File</label>
               <input 
                 type="file" 
                 onChange={e => setFile(e.target.files?.[0] || null)}
-                className="w-full bg-[#111] border border-dashed border-[#2e2e2e] text-[10px] p-8 text-center cursor-pointer hover:border-[#F97316] transition-colors"
+                className="w-full bg-[#111] border border-dashed border-[#2e2e2e] text-xs p-8 text-center cursor-pointer hover:border-[#F97316] transition-colors"
                 required
               />
             </div>
@@ -671,8 +671,8 @@ const AddProgressModal = ({ isOpen, onClose, taskId }: { isOpen: boolean, onClos
 
           {(type === 'link' || type === 'code_snippet') && (
             <div className="space-y-2">
-               <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                 {type === 'link' ? 'TARGET URL' : 'CODE RAW DATA'}
+               <label className="text-xs font-medium text-zinc-500">
+                 {type === 'link' ? 'URL' : 'Code'}
                </label>
                <textarea 
                   value={content}
@@ -686,24 +686,24 @@ const AddProgressModal = ({ isOpen, onClose, taskId }: { isOpen: boolean, onClos
           )}
 
           <div className="space-y-2">
-             <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Annotation / Context Note</label>
+             <label className="text-xs font-medium text-zinc-500">Note</label>
              <textarea 
                 value={note}
                 onChange={e => setNote(e.target.value)}
                 className="w-full bg-[#111] border border-[#2e2e2e] p-4 text-xs text-zinc-300 outline-none focus:border-[#F97316]"
-                placeholder="Declare the purpose of this update..."
+                placeholder="Add context about this update..."
                 rows={2}
              />
           </div>
 
           <DialogFooter className="pt-4 border-t border-[#2e2e2e]">
-             <Button type="button" variant="outline" onClick={onClose} className="rounded-none font-black uppercase tracking-widest text-[10px] border-[#2e2e2e]">CANCEL</Button>
-             <Button 
-               type="submit" 
+             <Button type="button" variant="outline" onClick={onClose} className="rounded-none font-medium text-xs border-[#2e2e2e]">CANCEL</Button>
+             <Button
+               type="submit"
                disabled={mutation.isPending}
-               className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-black uppercase tracking-widest text-[10px] px-8"
+               className="rounded-none bg-[#F97316] hover:bg-[#F97316]/90 text-black font-semibold text-xs px-8"
              >
-               {mutation.isPending ? 'SYNCHRONIZING...' : 'ESTABLISH LINK'}
+               {mutation.isPending ? 'Saving...' : 'Save Update'}
              </Button>
           </DialogFooter>
         </form>

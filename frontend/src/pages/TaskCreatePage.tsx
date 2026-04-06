@@ -207,15 +207,15 @@ const TaskCreatePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex bg-[#111111] min-h-screen font-mono text-zinc-300">
+    <div className="flex bg-[#111111] min-h-screen text-zinc-300">
       <Sidebar />
       
-      <main className="flex-1 ml-64 p-8 flex flex-col items-center">
+      <main className="flex-1 ml-0 md:ml-64 p-4 md:p-8 flex flex-col items-center">
         {/* Navigation */}
-        <div className="w-full max-w-2xl mb-12">
+        <div className="w-full max-w-2xl mb-12 pt-10 md:pt-0">
           <button onClick={() => navigate(-1)} className="flex items-center gap-2 group text-zinc-500 hover:text-[#F97316] transition-colors">
             <ChevronLeft size={16} />
-            <span className="text-[10px] font-black uppercase tracking-widest">Abort / Return to Registry</span>
+            <span className="text-xs font-medium">Abort / Return to Registry</span>
           </button>
         </div>
 
@@ -224,9 +224,9 @@ const TaskCreatePage: React.FC = () => {
           <div className="space-y-2">
             <div className="flex items-center gap-3">
               <div className="h-8 w-1.5 bg-[#F97316]" />
-              <h1 className="text-4xl font-black uppercase tracking-tighter italic">Establish New Node</h1>
+              <h1 className="text-4xl font-semibold">Establish New Node</h1>
             </div>
-            <p className="text-[10px] text-zinc-600 uppercase tracking-[0.3em] font-bold">Protocol Implementation / Task Deployment</p>
+            <p className="text-xs text-zinc-600 font-bold">Protocol Implementation / Task Deployment</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
@@ -235,7 +235,7 @@ const TaskCreatePage: React.FC = () => {
             <section className="space-y-4">
               <div className="flex justify-between items-end">
                 <Label htmlFor="name">Task Identifier</Label>
-                <span className={cn("text-[9px] font-bold", taskName.length > 110 ? "text-red-500" : "text-zinc-600")}>
+                <span className={cn("text-xs font-bold", taskName.length > 110 ? "text-red-500" : "text-zinc-600")}>
                   {taskName.length} / 120 CHARS
                 </span>
               </div>
@@ -243,9 +243,9 @@ const TaskCreatePage: React.FC = () => {
                 id="name"
                 {...register('name')}
                 placeholder="PROMETHEON_DATA_AUDIT_EX_01"
-                className="h-12 text-lg font-black uppercase italic tracking-tight rounded-none border-[#2e2e2e] bg-[#1a1a1a] focus-visible:ring-0 focus-visible:border-[#F97316]"
+                className="h-12 text-lg font-semibold rounded-none border-[#2e2e2e] bg-[#1a1a1a] focus-visible:ring-0 focus-visible:border-[#F97316]"
               />
-              {errors.name && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest mt-1">{errors.name.message}</p>}
+              {errors.name && <p className="text-xs text-red-500 font-semibold mt-1">{errors.name.message}</p>}
             </section>
 
             <Separator className="bg-[#2e2e2e]" />
@@ -259,7 +259,7 @@ const TaskCreatePage: React.FC = () => {
                   variant="outline" 
                   size="sm" 
                   onClick={() => setIsPreview(!isPreview)}
-                  className="h-7 px-3 rounded-none border-[#2e2e2e] text-[9px] font-black uppercase tracking-widest bg-[#1a1a1a]"
+                  className="h-7 px-3 rounded-none border-[#2e2e2e] text-xs font-medium bg-[#1a1a1a]"
                 >
                   {isPreview ? <><Edit2 size={12} className="mr-1.5" /> WRITE</> : <><Eye size={12} className="mr-1.5" /> PREVIEW</>}
                 </Button>
@@ -277,7 +277,7 @@ const TaskCreatePage: React.FC = () => {
                   className="min-h-[200px] font-sans text-sm p-4 rounded-none bg-[#1a1a1a] border-[#2e2e2e] focus-visible:border-[#F97316]"
                 />
               )}
-              {errors.description && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest mt-1">{errors.description.message}</p>}
+              {errors.description && <p className="text-xs text-red-500 font-semibold mt-1">{errors.description.message}</p>}
             </section>
 
             <Separator className="bg-[#2e2e2e]" />
@@ -347,7 +347,7 @@ const TaskCreatePage: React.FC = () => {
                       className="pl-10 h-11 rounded-none bg-[#1a1a1a] border-[#2e2e2e] focus-visible:border-[#F97316]"
                     />
                   </div>
-                  {(errors.deadlineDate || errors.deadlineTime) && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest">Temporal constraints strictly required</p>}
+                  {(errors.deadlineDate || errors.deadlineTime) && <p className="text-xs text-red-500 font-semibold">Temporal constraints strictly required</p>}
                 </div>
               </section>
             </div>
@@ -386,13 +386,13 @@ const TaskCreatePage: React.FC = () => {
                             {user.avatar_url ? <img src={user.avatar_url} className="w-full h-full object-cover" /> : <User size={14} />}
                           </div>
                           <div className="text-left">
-                            <p className="text-xs font-black uppercase tracking-tight">{user.name}</p>
-                            <p className="text-[9px] text-[#F97316] font-bold uppercase">{user.role}</p>
+                            <p className="text-xs font-medium">{user.name}</p>
+                            <p className="text-xs text-[#F97316] font-bold">{user.role}</p>
                           </div>
                         </button>
                       ))
                     ) : (
-                      <div className="p-4 text-center text-zinc-600 text-[10px] font-black uppercase">No operatives matching identifier</div>
+                      <div className="p-4 text-center text-zinc-600 text-xs font-medium">No operatives matching identifier</div>
                     )}
                   </div>
                 )}
@@ -405,7 +405,7 @@ const TaskCreatePage: React.FC = () => {
                       <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center overflow-hidden">
                          {user.avatar_url ? <img src={user.avatar_url} className="w-full h-full object-cover" /> : <User size={12} />}
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-widest">{user.name}</span>
+                      <span className="text-xs font-medium">{user.name}</span>
                       <button type="button" onClick={() => removeUser(user.id)} className="text-zinc-500 hover:text-red-500">
                         <X size={12} />
                       </button>
@@ -413,7 +413,7 @@ const TaskCreatePage: React.FC = () => {
                   ))}
                 </div>
               )}
-              {errors.assignee_ids && <p className="text-[10px] text-red-500 font-black uppercase tracking-widest mt-1">{errors.assignee_ids.message}</p>}
+              {errors.assignee_ids && <p className="text-xs text-red-500 font-semibold mt-1">{errors.assignee_ids.message}</p>}
             </section>
 
             <Separator className="bg-[#2e2e2e]" />
@@ -435,7 +435,7 @@ const TaskCreatePage: React.FC = () => {
                 {watch('tags')?.length ? (
                   <div className="flex flex-wrap gap-2">
                     {watch('tags')?.map(tag => (
-                      <div key={tag} className="flex items-center gap-2 px-3 py-1 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] text-[10px] font-black uppercase tracking-widest italic">
+                      <div key={tag} className="flex items-center gap-2 px-3 py-1 bg-[#F97316]/10 border border-[#F97316]/30 text-[#F97316] text-xs font-medium">
                         # {tag}
                         <button type="button" onClick={() => removeTag(tag)}><X size={10} /></button>
                       </div>
@@ -468,15 +468,15 @@ const TaskCreatePage: React.FC = () => {
                   <>
                     <FileText size={32} className="text-[#F97316]" />
                     <div className="text-center">
-                      <p className="text-xs font-black uppercase">{briefFile.name}</p>
-                      <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1">
+                      <p className="text-xs font-medium">{briefFile.name}</p>
+                      <p className="text-xs text-zinc-500 font-bold mt-1">
                         {(briefFile.size / 1024).toFixed(1)} KB / SECTOR READY
                       </p>
                     </div>
                     <Button 
                       type="button" 
                       variant="outline" 
-                      className="h-8 text-[9px] font-black rounded-none border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
+                      className="h-8 text-xs font-medium rounded-none border-red-500/20 text-red-500 hover:bg-red-500 hover:text-white"
                       onClick={(e) => { e.stopPropagation(); setBriefFile(null); }}
                     >
                       CLEAR PAYLOAD
@@ -485,10 +485,10 @@ const TaskCreatePage: React.FC = () => {
                 ) : (
                   <>
                     <Upload size={32} className="text-zinc-600" />
-                    <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                    <p className="text-xs font-medium text-zinc-500">
                       Drag & Drop File or click to select payload
                     </p>
-                    <p className="text-[8px] text-zinc-700 font-bold uppercase">instructional document (read-only for assignees)</p>
+                    <p className="text-xs text-zinc-700 font-bold">instructional document (read-only for assignees)</p>
                   </>
                 )}
               </div>
@@ -526,13 +526,13 @@ const TaskCreatePage: React.FC = () => {
                         >
                           <FileText size={16} className="text-blue-500" />
                           <div className="text-left">
-                            <p className="text-xs font-black uppercase tracking-tight">{doc.auto_name}</p>
-                            <p className="text-[9px] text-zinc-600 font-bold uppercase">{doc.mime_type}</p>
+                            <p className="text-xs font-medium">{doc.auto_name}</p>
+                            <p className="text-xs text-zinc-600 font-bold">{doc.mime_type}</p>
                           </div>
                         </button>
                       ))
                     ) : (
-                      <div className="p-4 text-center text-zinc-600 text-[10px] font-black uppercase">No assets found in global hub</div>
+                      <div className="p-4 text-center text-zinc-600 text-xs font-medium">No assets found in global hub</div>
                     )}
                   </div>
                 )}
@@ -541,7 +541,7 @@ const TaskCreatePage: React.FC = () => {
               {selectedDocs.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2">
                   {selectedDocs.map(doc => (
-                    <div key={doc.id} className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1a] border border-[#2e2e2e] text-[10px] font-black uppercase tracking-tight text-blue-400">
+                    <div key={doc.id} className="flex items-center gap-2 px-3 py-1.5 bg-[#1a1a1a] border border-[#2e2e2e] text-xs font-medium text-blue-400">
                       <LinkIcon size={10} />
                       {doc.auto_name}
                       <button type="button" onClick={() => removeDoc(doc.id)} className="text-zinc-600 hover:text-red-500 ml-1">
@@ -557,13 +557,13 @@ const TaskCreatePage: React.FC = () => {
             <div className="fixed bottom-0 left-64 right-0 p-6 bg-[#111]/80 backdrop-blur-md border-t border-[#2e2e2e] z-50 flex justify-center">
               <div className="w-full max-w-2xl flex items-center justify-between">
                 <div className="hidden md:block">
-                  <p className="text-[9px] font-black uppercase tracking-[0.2em] text-[#F97316]">Safety Warning</p>
-                  <p className="text-[8px] text-zinc-600 font-bold uppercase">All task deployments are final and recorded in blockchain</p>
+                  <p className="text-xs font-medium text-[#F97316]">Safety Warning</p>
+                  <p className="text-xs text-zinc-600 font-bold">All task deployments are final and recorded in blockchain</p>
                 </div>
                 <Button 
                   type="submit" 
                   disabled={isSubmitting || mutation.isPending}
-                  className="w-full md:w-auto h-12 px-12 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-black text-sm uppercase tracking-widest italic flex gap-3 shadow-[0_0_30px_rgba(249,115,22,0.2)]"
+                  className="w-full md:w-auto h-12 px-12 bg-[#F97316] hover:bg-[#F97316]/90 text-black border-none rounded-none font-semibold text-sm italic flex gap-3 shadow-[0_0_30px_rgba(249,115,22,0.2)]"
                 >
                   {(isSubmitting || mutation.isPending) ? 'ESTABLISHING CONNECTION...' : 'DEPLOY TASK'}
                 </Button>

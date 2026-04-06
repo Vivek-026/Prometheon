@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  Users, 
-  Search, 
-  Pin, 
+import {
+  Users,
+  Search,
+  Pin,
   X,
   Loader2,
   Lock,
   MoreVertical,
-  SendHorizonal
+  SendHorizonal,
+  ChevronLeft
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuthStore } from '../store/useAuthStore';
@@ -149,28 +150,33 @@ const ChatPage: React.FC = () => {
   });
 
   return (
-    <div className="flex bg-[#111111] min-h-screen font-mono text-zinc-300">
+    <div className="flex bg-[#111111] min-h-screen text-zinc-300">
         <Sidebar />
 
-        <main className="flex-1 ml-64 p-0 flex h-screen overflow-hidden">
+        <main className="flex-1 ml-0 md:ml-64 p-0 flex flex-col md:flex-row h-screen overflow-hidden">
             
             {/* Chat Sidebar */}
-            <ChatSidebar 
-              groups={groups} 
-              dms={dms} 
-              onNewGroup={() => {}}
-              onNewDM={() => setIsNewDMModalOpen(true)}
-            />
+            <div className={cn("w-full md:w-auto", currentId ? "hidden md:block" : "block")}>
+              <ChatSidebar
+                groups={groups}
+                dms={dms}
+                onNewGroup={() => {}}
+                onNewDM={() => setIsNewDMModalOpen(true)}
+              />
+            </div>
 
             {/* Conversation Area */}
-            <div className="flex-1 flex flex-col relative">
+            <div className={cn("flex-1 flex flex-col relative", !currentId ? "hidden md:flex" : "flex")}>
                
                {/* Conversation Header */}
-               <header className="h-16 px-6 border-b border-[#2e2e2e] bg-[#0d0d0d]/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10">
+               <header className="h-14 md:h-16 px-3 md:px-6 border-b border-[#2e2e2e] bg-[#0d0d0d]/80 backdrop-blur-md flex items-center justify-between shrink-0 z-10">
                   <div className="flex items-center gap-4">
-                     <span className="text-[#F97316] font-black text-xl italic uppercase"># {conversationName}</span>
-                     {activeGroup && <span className="text-[9px] font-bold text-zinc-600 uppercase italic flex items-center gap-1"><Users size={12} /> {activeGroup.member_count || 0} OPERATIVES</span>}
-                     {activeDM && <Badge className="bg-green-600/10 text-green-500 border-green-500/20 text-[8px] h-4">ONLINE_UPLINK</Badge>}
+                     <button onClick={() => navigate('/chat')} className="md:hidden p-2 min-h-[44px] min-w-[44px] text-zinc-400 hover:text-white mr-2">
+                       <ChevronLeft size={20} />
+                     </button>
+                     <span className="text-[#F97316] font-semibold text-xl"># {conversationName}</span>
+                     {activeGroup && <span className="text-[11px] font-medium text-zinc-600 flex items-center gap-1"><Users size={12} /> {activeGroup.member_count || 0} members</span>}
+                     {activeDM && <Badge className="bg-green-600/10 text-green-500 border-green-500/20 text-[10px] h-4">Online</Badge>}
                   </div>
                   <div className="flex items-center gap-4">
                      <Search size={18} className="text-zinc-600 hover:text-white cursor-pointer" />
@@ -186,16 +192,16 @@ const ChatPage: React.FC = () => {
                   {isHistoryLoading ? (
                     <div className="flex items-center justify-center h-full"><Loader2 className="animate-spin text-[#F97316]" size={32} /></div>
                   ) : !currentId ? (
-                    <div className="flex flex-col items-center justify-center h-full opacity-20 grayscale-0 italic text-center">
+                    <div className="flex flex-col items-center justify-center h-full opacity-20 grayscale-0 text-center">
                        <Lock size={64} className="text-zinc-700 mb-6" />
-                       <h2 className="text-2xl font-black uppercase tracking-widest text-[#F97316]">Encrypted Hub Access</h2>
-                       <p className="text-[10px] uppercase font-bold mt-2">Select a secure channel to initiate encrypted communication profile.</p>
+                       <h2 className="text-2xl font-semibold text-[#F97316]">Pick a conversation</h2>
+                       <p className="text-xs font-normal mt-2">Select a group or start a direct message.</p>
                     </div>
                   ) : (
                     <>
                        {/* Load More Trigger */}
                        <div className="text-center py-4">
-                          <button className="text-[9px] font-black uppercase text-zinc-700 hover:text-zinc-400">Fetch Historic Fragments_</button>
+                          <button className="text-[11px] font-medium text-zinc-700 hover:text-zinc-400">Load older messages</button>
                        </div>
 
                        {/* Message Clusters */}
@@ -208,7 +214,7 @@ const ChatPage: React.FC = () => {
                                   {showDate && (
                                      <div className="flex items-center gap-4 py-6">
                                         <div className="flex-1 h-px bg-[#2e2e2e]" />
-                                        <span className="text-[9px] font-black uppercase text-zinc-600 tracking-[0.4em] italic">{format(new Date(m.created_at), 'MMMM d, yyyy')}</span>
+                                        <span className="text-[11px] font-medium text-zinc-600">{format(new Date(m.created_at), 'MMMM d, yyyy')}</span>
                                         <div className="flex-1 h-px bg-[#2e2e2e]" />
                                      </div>
                                   )}
@@ -228,8 +234,8 @@ const ChatPage: React.FC = () => {
                        {/* Typing Indicators */}
                        <div className="h-6">
                           {currentId && typing[currentId]?.length > 0 && (
-                             <div className="text-[9px] font-black italic text-zinc-600 uppercase flex items-center gap-2 px-4 animate-pulse">
-                                {typing[currentId].join(', ')} is transmitting data_
+                             <div className="text-[11px] font-medium text-zinc-600 flex items-center gap-2 px-4 animate-pulse">
+                                {typing[currentId].join(', ')} is typing...
                                 <div className="flex gap-0.5">
                                    <div className="w-1 h-1 bg-zinc-700 rounded-full animate-bounce" />
                                    <div className="w-1 h-1 bg-zinc-700 rounded-full animate-bounce [animation-delay:-0.15s]" />
@@ -254,19 +260,19 @@ const ChatPage: React.FC = () => {
 
                {/* Pins Panel (Overlay) */}
                {showPins && (
-                  <div className="absolute top-16 right-0 bottom-0 w-[300px] bg-[#0d0d0d] border-l border-[#2e2e2e] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] z-20 flex flex-col p-6 animate-in slide-in-from-right-full duration-300">
+                  <div className="absolute top-16 right-0 bottom-0 w-full md:w-[300px] bg-[#0d0d0d] border-l border-[#2e2e2e] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] z-20 flex flex-col p-6 animate-in slide-in-from-right-full duration-300">
                       <div className="flex items-center justify-between mb-8">
-                         <h3 className="text-xl font-black uppercase italic text-[#F97316] flex items-center gap-2"><Pin size={20} /> Tactical_Pins</h3>
+                         <h3 className="text-xl font-semibold text-[#F97316] flex items-center gap-2"><Pin size={20} /> Pinned Messages</h3>
                          <button onClick={() => setShowPins(false)} className="text-zinc-600 hover:text-white"><X size={20} /></button>
                       </div>
                       <div className="flex-1 overflow-y-auto space-y-4 custom-scrollbar">
                          {messages.filter(m => m.is_pinned).map(pm => (
                             <div key={pm.id} className="p-4 bg-[#161616] border border-[#2e2e2e] space-y-2 relative group hover:border-[#F97316]/50 transition-all">
                                <div className="flex items-center justify-between">
-                                  <span className="text-[10px] font-black text-white uppercase">{pm.sender.name}</span>
-                                  <span className="text-[8px] font-bold text-zinc-600 uppercase">{format(new Date(pm.created_at), 'MM/dd')}</span>
+                                  <span className="text-xs font-medium text-white">{pm.sender.name}</span>
+                                  <span className="text-[10px] font-normal text-zinc-600">{format(new Date(pm.created_at), 'MM/dd')}</span>
                                </div>
-                               <p className="text-[10px] text-zinc-400 line-clamp-3 leading-relaxed font-sans">{pm.content}</p>
+                               <p className="text-xs text-zinc-400 line-clamp-3 leading-relaxed font-sans">{pm.content}</p>
                                <button 
                                  onClick={() => pinMutation.mutate({ id: pm.id, is_pinned: false })}
                                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 p-1 bg-[#111] text-zinc-600 hover:text-red-500 transition-all"
@@ -276,9 +282,9 @@ const ChatPage: React.FC = () => {
                             </div>
                          ))}
                          {messages.filter(m => m.is_pinned).length === 0 && (
-                            <div className="h-full flex flex-col items-center justify-center opacity-20 italic space-y-2">
+                            <div className="h-full flex flex-col items-center justify-center opacity-20 space-y-2">
                                <Pin size={32} />
-                               <span className="text-[10px] font-black uppercase">No Data Anchored</span>
+                               <span className="text-xs font-medium">No pinned messages</span>
                             </div>
                          )}
                       </div>
@@ -289,18 +295,18 @@ const ChatPage: React.FC = () => {
 
         {/* NEW DM MODAL */}
         <Dialog open={isNewDMModalOpen} onOpenChange={setIsNewDMModalOpen}>
-           <DialogContent className="max-w-md bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 font-mono flex flex-col p-0">
+           <DialogContent className="max-w-md bg-[#0d0d0d] border-[#2e2e2e] text-zinc-300 flex flex-col p-0">
               <DialogHeader className="p-6 border-b border-[#2e2e2e]">
-                 <DialogTitle className="text-xl font-black uppercase italic text-white flex items-center gap-2">Initiate Secure Channel</DialogTitle>
+                 <DialogTitle className="text-xl font-semibold text-white flex items-center gap-2">New Direct Message</DialogTitle>
               </DialogHeader>
               <div className="p-6 space-y-6">
                  <div className="relative">
                     <Search className="absolute left-3 top-3 text-zinc-600" size={16} />
                     <Input 
-                      placeholder="Search operative alias..."
+                      placeholder="Search by name..."
                       value={dmSearch}
                       onChange={(e) => setDmSearch(e.target.value)}
-                      className="pl-10 h-12 bg-[#111] border-[#2e2e2e] text-xs font-black uppercase italic focus-visible:border-[#F97316]"
+                      className="pl-10 h-12 bg-[#111] border-[#2e2e2e] text-xs font-normal focus-visible:border-[#F97316]"
                     />
                  </div>
                  <div className="h-64 overflow-y-auto space-y-1 custom-scrollbar">
@@ -314,8 +320,8 @@ const ChatPage: React.FC = () => {
                              {u.avatar_url && <img src={u.avatar_url} className="w-full h-full object-cover" />}
                           </div>
                           <div className="text-left">
-                             <p className="text-xs font-black uppercase text-white group-hover:text-[#F97316] transition-colors">{u.name}</p>
-                             <p className="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">{u.role}</p>
+                             <p className="text-xs font-medium text-white group-hover:text-[#F97316] transition-colors">{u.name}</p>
+                             <p className="text-[10px] font-normal text-zinc-600">{u.role}</p>
                           </div>
                           <SendHorizonal size={14} className="ml-auto opacity-0 group-hover:opacity-100 text-[#F97316] transition-opacity" />
                        </button>
