@@ -173,10 +173,25 @@ async def get_quarterly_worklog(db: AsyncSession, quarter: int, year: int) -> Qu
 
     team_members = []
     for user in users:
-        # Just get the last month summary for simplicity
+        # Aggregate across all 3 months in the quarter
+        total_completed = 0
+        total_cf = 0
+        monthly_summaries = []
         for m in months:
             monthly = await get_monthly_worklog(db, user.id, year, m)
-            team_members.append(monthly)
+            total_completed += monthly.total_tasks_completed
+            total_cf += monthly.carry_forward_count
+            monthly_summaries.append(monthly)
+
+        # Create one aggregated entry per user
+        team_members.append(MonthlyWorklog(
+            user_id=user.id,
+            user_name=user.name,
+            month=f"{year}-Q{quarter}",
+            weekly_summaries=monthly_summaries,
+            total_tasks_completed=total_completed,
+            carry_forward_count=total_cf,
+        ))
 
     return QuarterlyWorklog(
         quarter=f"Q{quarter}",

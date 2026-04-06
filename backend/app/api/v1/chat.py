@@ -113,6 +113,15 @@ async def remove_member(
 
 # ── DMs ──
 
+@router.get("/dm", response_model=list[DMThreadOut])
+async def list_dm_threads(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    threads = await chat_service.list_user_dm_threads(db, current_user.id)
+    return [DMThreadOut.model_validate(t) for t in threads]
+
+
 @router.post("/dm", response_model=DMThreadOut, status_code=201)
 async def start_dm(
     data: DMCreate,

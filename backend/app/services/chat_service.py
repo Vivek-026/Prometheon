@@ -40,23 +40,15 @@ async def create_group(db: AsyncSession, data: GroupCreate, creator: User) -> Ch
     return group
 
 
-async def list_user_groups(db: AsyncSession, user_id: UUID) -> list[dict]:
-    """List groups the user is a member of, with unread counts."""
+async def list_user_groups(db: AsyncSession, user_id: UUID) -> list[ChatGroup]:
+    """List groups the user is a member of."""
     result = await db.execute(
         select(ChatGroup)
         .join(ChatGroupMember)
         .where(ChatGroupMember.user_id == user_id)
         .order_by(ChatGroup.created_at)
     )
-    groups = list(result.scalars().all())
-
-    group_list = []
-    for g in groups:
-        group_list.append({
-            **{c.name: getattr(g, c.name) for c in g.__table__.columns},
-            "unread_count": 0,  # TODO: track last-read per user
-        })
-    return groups
+    return list(result.scalars().all())
 
 
 async def get_group(db: AsyncSession, group_id: UUID) -> ChatGroup | None:
@@ -114,6 +106,16 @@ async def remove_member(db: AsyncSession, group_id: UUID, user_id: UUID) -> bool
 
 
 # ── DMs ──
+
+async def list_user_dm_threads(db: AsyncSession, user_id: UUID) -> list[DMThread]:
+    """List all DM threads for a user."""
+    result = await db.execute(
+        select(DMThread).where(
+            (DMThread.user_a == user_id) | (DMThread.user_b == user_id)
+        ).order_by(DMThread.created_at.desc())
+    )
+    return list(result.scalars().all())
+
 
 async def get_or_create_dm(db: AsyncSession, user_a_id: UUID, user_b_id: UUID) -> DMThread:
     """Get existing DM thread or create one. Ensures user_a < user_b."""
